@@ -20,6 +20,7 @@ export const typeDefs = gql`
     chatRoomId: String!
     createdAt: String
     updatedAt: String
+    status: String
   }
 
   type ChatRoom {
@@ -51,6 +52,12 @@ export const typeDefs = gql`
     content: String!
   }
 
+  input UpdateMessageInput {
+    id: String!
+    content: String
+    status: String
+  }
+
   input CreateChatRoomInput {
     members: [String!]!
     name: String!
@@ -61,7 +68,7 @@ export const typeDefs = gql`
 
     createMessage(input: CreateMessageInput!): Message
 
-    deleteMessage(id: String!): Boolean
+    updateMessage(input: UpdateMessageInput!): Message
 
     createChatRoom(input: CreateChatRoomInput!): ChatRoom
   }
@@ -69,5 +76,7 @@ export const typeDefs = gql`
   # the schema allows the following subscription:
   type Subscription {
     onCreateMessage(chatRoomId: String!): Message
+    
+    onUpdateMessage(id: String!): Message
   }
 `;

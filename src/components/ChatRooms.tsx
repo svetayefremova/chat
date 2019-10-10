@@ -16,7 +16,7 @@ const useGetUserQuery = () =>
 const ChatLink = (props) => (
   <li>
     <Link to={`/chat/${props.room.id}`}>
-      <a style={linkStyle}>{props.room.name}</a>
+      <p style={linkStyle} >{props.room.name}</p>
     </Link>
   </li>
 );

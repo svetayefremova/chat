@@ -35,6 +35,7 @@ export const GET_CHATROOM = gql`
         }
         authorId
         chatRoomId
+        status
       }
     }
   }

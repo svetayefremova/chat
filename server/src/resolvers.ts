@@ -1,7 +1,9 @@
 import uuid from "uuidv4";
+import { PubSub, withFilter } from 'apollo-server';
 
 import { USER } from "../../src/config";
-import pubsub from "./pubsub";
+
+const pubsub = new PubSub();
 
 // example data
 const messages = [
@@ -14,6 +16,7 @@ const messages = [
     authorId: "1",
     content: "hello alice",
     chatRoomId: "1",
+    status: null
   },
   {
     id: "2",
@@ -24,6 +27,7 @@ const messages = [
     authorId: "2",
     content: "hello Svieta",
     chatRoomId: "1",
+    status: null
   },
 ];
 const chatRooms = [
@@ -39,6 +43,10 @@ const users = [
   { id: "2", username: "Alice", chatRooms },
   { id: "3", username: "Marianna", chatRooms: null },
 ];
+
+enum MessageStatus {
+  updated = "updated", deleted = 'deleted'
+}
 
 export const resolvers = {
   Query: {
@@ -91,6 +99,7 @@ export const resolvers = {
         authorId: input.authorId,
         chatRoomId: input.chatRoomId,
         author: USER,
+        status: null
       };
 
       messages.push(message);
@@ -102,8 +111,26 @@ export const resolvers = {
       return message;
     },
 
-    deleteMessage: (_, { id }) => true,
+    updateMessage: async (_, { input }) => {
+      messages.map(message => {
+        if (message.id === input.id) {
+          message.content = input.content || '',
+          message.status = input.status || MessageStatus.updated
+        }
+        return message
+      });
 
+      const message = messages.find(message => message.id === input.id)
+
+      console.log('message', message);
+
+      pubsub.publish("onUpdateMessage", {
+        onUpdateMessage: message
+      });
+
+      return message;
+    },
+  
     createChatRoom: async (_, { input }) => {
       const chat = {
         id: uuid(),
@@ -121,6 +148,13 @@ export const resolvers = {
   Subscription: {
     onCreateMessage: {
       subscribe: () => pubsub.asyncIterator("onCreateMessage")
+    },
+
+    onUpdateMessage: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator('onUpdateMessage'),
+        (payload, variables) => payload.onUpdateMessage.id === variables.id
+      )
     },
   },
 };

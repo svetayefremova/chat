@@ -13,7 +13,7 @@ const styles: any = {
   leftContainer: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#fff999",
+    backgroundColor: "#ffeeff",
   },
   rightContainer: {
     padding: 16,

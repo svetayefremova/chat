@@ -20,6 +20,39 @@ export const CREATE_MESSAGE = gql`
       }
       authorId
       chatRoomId
+      status
+    }
+  }
+`;
+
+export const UPDATE_MESSAGE = gql`
+  mutation updateMessage($input: UpdateMessageInput!) {
+    updateMessage(input: $input) {
+      id
+      content
+      author {
+        id
+        username
+      }
+      authorId
+      chatRoomId
+      status
+    }
+  }
+`;
+
+export const DELETE_MESSAGE = gql`
+  mutation deleteMessage($id: String!) {
+    deleteMessage(id: $id) {
+      id
+      content
+      author {
+        id
+        username
+      }
+      authorId
+      chatRoomId
+      status
     }
   }
 `;
@@ -37,6 +70,7 @@ export const CREATE_CHATROOM = gql`
         }
         authorId
         chatRoomId
+        status
       }
       name
       members
