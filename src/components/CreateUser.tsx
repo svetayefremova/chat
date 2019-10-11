@@ -21,17 +21,15 @@ const useCreateUserMutation = () => {
     });
 };
 
-const CreateUserForm = ({ onLogin }) => {
+const AuthForm = ({ onSubmit }) => {
   const [username, setUsername] = useState("");
   const { getFieldDecorator, validateFields } = useForm<{ username: string }>();
-  const mutate = useCreateUserMutation();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     await validateFields();
-    await mutate(username);
     setUsername("");
-    onLogin();
+    onSubmit(username);
   }
 
   return (
@@ -48,7 +46,19 @@ const CreateUserForm = ({ onLogin }) => {
 };
 
 const CreateUser = ({ onLogin }) => {
-  return <CreateUserForm onLogin={onLogin} />;
+  const mutate = useCreateUserMutation();
+
+  async function onRegister(username: string) {
+    const { data: { createUser } } = await mutate(username);
+    if (createUser) {
+      onLogin(createUser.id);
+    } else {
+      // TODO add error handling in store and error component
+      alert('Ooops... something went wrong...')
+    }
+  }
+
+  return <AuthForm onSubmit={onRegister} />;
 };
 
 export default CreateUser;

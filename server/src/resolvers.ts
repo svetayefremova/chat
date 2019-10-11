@@ -2,6 +2,9 @@ import uuid from "uuidv4";
 import { PubSub, withFilter } from 'apollo-server';
 
 import { USER } from "../../src/config";
+import User from './models/user';
+// import Message from './models/message';
+import ChatRoom from './models/chatRoom';
 
 const pubsub = new PubSub();
 
@@ -38,11 +41,6 @@ const chatRooms = [
     members: ["Svieta", "Alice"],
   },
 ];
-const users = [
-  { id: "1", username: "Svieta", chatRooms },
-  { id: "2", username: "Alice", chatRooms },
-  { id: "3", username: "Marianna", chatRooms: null },
-];
 
 enum MessageStatus {
   updated = "updated", deleted = 'deleted'
@@ -51,45 +49,49 @@ enum MessageStatus {
 export const resolvers = {
   Query: {
     listUsers: async () => {
-      // const users: any[] = await User.find()
+      const users: any[] = await User.find()
 
-      // return users.map(user => user.toObject())
-      return users;
+      return users.map(user => user.toObject())
+
+      // return users;
     },
 
     getUser: async (_, { id }) => {
-      // const user: any = await User.findById(id)
+      const user: any = await User.findById(id)
 
-      // if (user) {
-      //   return user.toObject()
-      // }
+      if (user) {
+        return user.toObject()
+      }
 
-      return users.find((user) => user.id === id);
+      // return users.find((user) => user.id === id);
     },
 
     getChatRoom: async (_, { id }) => {
-      return chatRooms.find((chatRoom) => chatRoom.id === id);
+      const chatRoom: any = await ChatRoom.findById(id)
+
+      if (chatRoom) {
+        return chatRoom.toObject()
+      }
+
+      // return chatRooms.find((chatRoom) => chatRoom.id === id);
     },
   },
 
   Mutation: {
     createUser: async (_, { input }) => {
-      // let user: any = await User.findOne({
-      //   username: args.username,
-      // })
-
-      // if (!user) {
-      //   user = await User.create(args)
-
-      //   return user.toObject()
-      // }
-      const user = {
-        id: uuid(),
+      let user: any = await User.findOne({
         username: input.username,
-        chatRooms: [],
-      };
+      });
 
-      users.push(user);
+      if (!user) {
+        user = await User.create({
+          ...input,
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        });
+
+        return user.toObject();     
+      }
     },
 
     createMessage: async (_, { input }) => {

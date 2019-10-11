@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 export const GET_USER = gql`
-  query getUser($id: String!) {
+  query getUser($id: ID!) {
     getUser(id: $id) {
       id
       username
@@ -22,7 +22,7 @@ export const LIST_USERS = gql`
 `;
 
 export const GET_CHATROOM = gql`
-  query getChatRoom($id: String!) {
+  query getChatRoom($id: ID!) {
     getChatRoom(id: $id) {
       id
       name

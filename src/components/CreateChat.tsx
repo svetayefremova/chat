@@ -1,10 +1,11 @@
 import { useMutation, useQuery } from "@apollo/react-hooks";
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { observer } from 'mobx-react';
 
 import { USER } from "../config";
 import { CREATE_CHATROOM } from "../graphql/mutations";
 import { GET_USER, LIST_USERS } from "../graphql/queries";
+import { useStore } from '../stores/store';
 
 const styles: any = {
   modal: {
@@ -95,13 +96,13 @@ const Modal = ({ onClose, ...props }) => {
   );
 };
 
-const CreateChat = () => {
+const CreateChat = observer(() => {
   const [isShowModal, setIsShowModal] = useState(false);
-  const history = useHistory();
+  const { setCurrentChatId } = useStore();
 
   const onCreateChatRoom = (id) => {
     setIsShowModal(false);
-    history.replace(`/chat/${id}`);
+    setCurrentChatId(id);
   };
 
   return (
@@ -114,6 +115,6 @@ const CreateChat = () => {
       ) : null}
     </div>
   );
-};
+});
 
 export default CreateChat;

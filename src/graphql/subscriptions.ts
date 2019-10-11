@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 export const ON_CREATE_MESSAGE = gql`
-  subscription onCreateMessage($chatRoomId: String!) {
+  subscription onCreateMessage($chatRoomId: ID!) {
     onCreateMessage(chatRoomId: $chatRoomId) {
       id
       content
@@ -17,7 +17,7 @@ export const ON_CREATE_MESSAGE = gql`
 `;
 
 export const ON_UPDATE_MESSAGE = gql`
-  subscription onUpdateMessage($id: String!) {
+  subscription onUpdateMessage($id: ID!) {
     onUpdateMessage(id: $id) {
       id
       content

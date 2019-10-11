@@ -10,15 +10,18 @@ import {
 import apolloClient from "./apollo/client";
 import Chat from "./pages/Chat";
 import Login from "./pages/Login";
+import SignIn from "./pages/SignIn";
 import NoMatch from "./pages/NoMatch";
-import { fakeAuth } from "./services/fakeAuth";
+import { StoreProvider, useStore } from './stores/store';
 
 const PrivateRoute = ({ children, ...rest }) => {
+  const { userId } = useStore();
+  
   return (
     <Route
       {...rest}
-      render={({ location }) =>
-        fakeAuth.isAuthenticated ? (
+      render={({ location }) => 
+        userId ? (
           children
         ) : (
           <Redirect
@@ -34,24 +37,26 @@ const PrivateRoute = ({ children, ...rest }) => {
 };
 
 const App = () => (
-  <ApolloProvider client={apolloClient}>
-    <Router>
-      <Switch>
-        <PrivateRoute exact path="/">
-          <Chat />
-        </PrivateRoute>
-        <PrivateRoute path="/chat/:chatId">
-          <Chat />
-        </PrivateRoute>
-        <Route path="/login">
-          <Login />
-        </Route>
-        <Route path="*">
-          <NoMatch />
-        </Route>
-      </Switch>
-    </Router>
-  </ApolloProvider>
+  <StoreProvider>
+    <ApolloProvider client={apolloClient}>
+      <Router>
+        <Switch>
+          <PrivateRoute exact path="/">
+            <Chat />
+          </PrivateRoute>
+          <Route path="/login">
+            <Login />
+          </Route>
+          <Route path="/register">
+            <SignIn />
+          </Route>
+          <Route path="*">
+            <NoMatch />
+          </Route>
+        </Switch>
+      </Router>
+    </ApolloProvider>
+  </StoreProvider>
 );
 
 export default App;

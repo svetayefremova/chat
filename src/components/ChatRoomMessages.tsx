@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useSubscription } from "@apollo/react-hooks";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { observer } from 'mobx-react';
 
 import { USER } from "../config";
 import { CREATE_MESSAGE, UPDATE_MESSAGE } from "../graphql/mutations";
 import { GET_CHATROOM } from "../graphql/queries";
 import { ON_CREATE_MESSAGE, ON_UPDATE_MESSAGE } from "../graphql/subscriptions";
+import { useStore } from '../stores/store';
 
 const styles: any = {
   messageContent: {
@@ -309,22 +310,22 @@ const Messages = ({ roomId }) => {
   ));
 };
 
-const ChatRoomMessages = () => {
-  const { chatId } = useParams();
+const ChatRoomMessages = observer(() => {
+  const { currentChatId } = useStore();
 
   // TODO should be another logic
   // maybe open first chat by default with bot user?
-  if (!chatId) {
+  if (!currentChatId) {
     return <p>Start to chat with somebody</p>;
   }
 
   return (
     <div>
-      <p>Chat: {chatId}</p>
-      <Messages roomId={chatId} />
-      <CreateMessage roomId={chatId} />
+      <p>Chat: {currentChatId}</p>
+      <Messages roomId={currentChatId} />
+      <CreateMessage roomId={currentChatId} />
     </div>
   );
-};
+});
 
 export default ChatRoomMessages;

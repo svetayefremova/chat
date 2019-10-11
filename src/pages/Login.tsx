@@ -1,9 +1,7 @@
 import React from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-import CreateUser from "../components/CreateUser";
 import Layout from "../components/Layout";
-import { fakeAuth } from "../services/fakeAuth";
 
 const styles: any = {
   main: {
@@ -14,25 +12,17 @@ const styles: any = {
   },
 };
 
-const Register = () => {
-  const history = useHistory();
-  const location = useLocation();
-
-  const { from } = location.state || { from: { pathname: "/" } };
-
-  const login = () => {
-    fakeAuth.authenticate(() => {
-      history.replace(from);
-    });
-  };
-
+const Login = () => {
   return (
     <Layout>
       <div style={styles.main}>
-        <CreateUser onLogin={login} />
+        <p>Login form here</p>
+        <Link to={"/register"}>
+          <p>Sign in</p>
+        </Link>
       </div>
     </Layout>
   );
 };
 
-export default Register;
+export default Login;

@@ -1,8 +1,27 @@
 import { ApolloServer } from "apollo-server";
-import { resolvers } from "./resolvers";
-import { typeDefs } from "./type-defs";
+import mongoose from 'mongoose';
 
-const server = new ApolloServer({ typeDefs, resolvers, tracing: true });
+import { schema } from './schema';
+import config from './config';
+
+mongoose.Promise = global.Promise
+
+mongoose.connect(
+  config.mongodb.uri,
+  {
+    useNewUrlParser: true,
+    useFindAndModify: false,
+    useCreateIndex: true,
+    useUnifiedTopology: true
+  }
+)
+
+mongoose.connection.once(
+  'open',
+  () => console.log(`Connected to MongoDB at ${config.mongodb.uri}`)
+)
+
+const server = new ApolloServer({ schema });
 
 server.listen().then(({ url }) => {
   console.log(`🚀  Server ready at ${url}`);
