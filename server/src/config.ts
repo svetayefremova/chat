@@ -1,5 +1,5 @@
 export default {
   mongodb: {
-    uri: 'mongodb://localhost/chat',
+    uri: "mongodb://localhost/chat",
   }
-}
+};

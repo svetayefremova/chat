@@ -1,10 +1,9 @@
 import React from "react";
 import { useHistory, useLocation } from "react-router-dom";
-import { observer } from 'mobx-react';
 
 import CreateUser from "../components/CreateUser";
 import Layout from "../components/Layout";
-import { useStore } from '../stores/store';
+import { useStore } from "../stores/store";
 
 const styles: any = {
   main: {
@@ -15,15 +14,14 @@ const styles: any = {
   },
 };
 
-const SignIn = observer(() => {
+const SignIn = () => {
   const history = useHistory();
   const location = useLocation();
-  const {  setUserId } = useStore();
+  const { setUserId } = useStore();
 
   const { from } = location.state || { from: { pathname: "/" } };
 
   function login(userId) {
-    console.log('login', userId);
     setUserId(userId);
     history.replace(from);
   }
@@ -35,6 +33,6 @@ const SignIn = observer(() => {
       </div>
     </Layout>
   );
-});
+};
 
 export default SignIn;

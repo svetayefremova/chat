@@ -1,10 +1,9 @@
 import { useQuery } from "@apollo/react-hooks";
 import React from "react";
-import { observer } from 'mobx-react';
 
 import { GET_USER } from "../graphql/queries";
+import { useStore } from "../stores/store";
 import CreateChat from "./CreateChat";
-import { useStore } from '../stores/store';
 
 const linkStyle = {
   marginRight: 15,
@@ -12,10 +11,10 @@ const linkStyle = {
 
 const useGetUserQuery = (id) => useQuery(GET_USER, { variables: { id } });
 
-const ChatRooms = observer(() => {
+const ChatRooms = () => {
   const { userId, setCurrentChatId } = useStore();
   const { loading, data } = useGetUserQuery(userId);
-  
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -36,13 +35,13 @@ const ChatRooms = observer(() => {
       <ul>
         {chatRooms.map((room) => (
           <li key={room.id} onClick={() => setCurrentChatId(room.id)}>
-            <p style={linkStyle} >{room.name}</p>
+            <p style={linkStyle}>{room.name}</p>
           </li>
         ))}
       </ul>
       <CreateChat />
     </div>
   );
-});
+};
 
 export default ChatRooms;

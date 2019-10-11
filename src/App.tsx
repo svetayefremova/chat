@@ -10,17 +10,17 @@ import {
 import apolloClient from "./apollo/client";
 import Chat from "./pages/Chat";
 import Login from "./pages/Login";
-import SignIn from "./pages/SignIn";
 import NoMatch from "./pages/NoMatch";
-import { StoreProvider, useStore } from './stores/store';
+import SignIn from "./pages/SignIn";
+import { StoreProvider, useStore } from "./stores/store";
 
 const PrivateRoute = ({ children, ...rest }) => {
   const { userId } = useStore();
-  
+
   return (
     <Route
       {...rest}
-      render={({ location }) => 
+      render={({ location }) =>
         userId ? (
           children
         ) : (

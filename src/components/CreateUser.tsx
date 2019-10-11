@@ -49,12 +49,14 @@ const CreateUser = ({ onLogin }) => {
   const mutate = useCreateUserMutation();
 
   async function onRegister(username: string) {
-    const { data: { createUser } } = await mutate(username);
+    const {
+      data: { createUser },
+    } = await mutate(username);
     if (createUser) {
       onLogin(createUser.id);
     } else {
       // TODO add error handling in store and error component
-      alert('Ooops... something went wrong...')
+      alert("Ooops... something went wrong...");
     }
   }
 

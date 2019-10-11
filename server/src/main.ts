@@ -1,10 +1,10 @@
 import { ApolloServer } from "apollo-server";
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-import { schema } from './schema';
-import config from './config';
+import config from "./config";
+import { schema } from "./schema";
 
-mongoose.Promise = global.Promise
+mongoose.Promise = global.Promise;
 
 mongoose.connect(
   config.mongodb.uri,
@@ -14,12 +14,12 @@ mongoose.connect(
     useCreateIndex: true,
     useUnifiedTopology: true
   }
-)
+);
 
 mongoose.connection.once(
-  'open',
+  "open",
   () => console.log(`Connected to MongoDB at ${config.mongodb.uri}`)
-)
+);
 
 const server = new ApolloServer({ schema });
 

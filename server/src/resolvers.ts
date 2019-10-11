@@ -1,10 +1,10 @@
+import { PubSub, withFilter } from "apollo-server";
 import uuid from "uuidv4";
-import { PubSub, withFilter } from 'apollo-server';
 
 import { USER } from "../../src/config";
-import User from './models/user';
 // import Message from './models/message';
-import ChatRoom from './models/chatRoom';
+import ChatRoom from "./models/chatRoom";
+import User from "./models/user";
 
 const pubsub = new PubSub();
 
@@ -43,34 +43,34 @@ const chatRooms = [
 ];
 
 enum MessageStatus {
-  updated = "updated", deleted = 'deleted'
+  updated = "updated", deleted = "deleted"
 }
 
 export const resolvers = {
   Query: {
     listUsers: async () => {
-      const users: any[] = await User.find()
+      const users: any[] = await User.find();
 
-      return users.map(user => user.toObject())
+      return users.map(user => user.toObject());
 
       // return users;
     },
 
     getUser: async (_, { id }) => {
-      const user: any = await User.findById(id)
+      const user: any = await User.findById(id);
 
       if (user) {
-        return user.toObject()
+        return user.toObject();
       }
 
       // return users.find((user) => user.id === id);
     },
 
     getChatRoom: async (_, { id }) => {
-      const chatRoom: any = await ChatRoom.findById(id)
+      const chatRoom: any = await ChatRoom.findById(id);
 
       if (chatRoom) {
-        return chatRoom.toObject()
+        return chatRoom.toObject();
       }
 
       // return chatRooms.find((chatRoom) => chatRoom.id === id);
@@ -116,15 +116,15 @@ export const resolvers = {
     updateMessage: async (_, { input }) => {
       messages.map(message => {
         if (message.id === input.id) {
-          message.content = input.content || '',
-          message.status = input.status || MessageStatus.updated
+          message.content = input.content || "",
+          message.status = input.status || MessageStatus.updated;
         }
-        return message
+        return message;
       });
 
-      const message = messages.find(message => message.id === input.id)
+      const message = messages.find(message => message.id === input.id);
 
-      console.log('message', message);
+      console.log("message", message);
 
       pubsub.publish("onUpdateMessage", {
         onUpdateMessage: message
@@ -154,7 +154,7 @@ export const resolvers = {
 
     onUpdateMessage: {
       subscribe: withFilter(
-        () => pubsub.asyncIterator('onUpdateMessage'),
+        () => pubsub.asyncIterator("onUpdateMessage"),
         (payload, variables) => payload.onUpdateMessage.id === variables.id
       )
     },

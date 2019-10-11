@@ -1,61 +1,60 @@
 import { useMutation, useQuery, useSubscription } from "@apollo/react-hooks";
 import React, { useEffect, useState } from "react";
-import { observer } from 'mobx-react';
 
 import { USER } from "../config";
 import { CREATE_MESSAGE, UPDATE_MESSAGE } from "../graphql/mutations";
 import { GET_CHATROOM } from "../graphql/queries";
 import { ON_CREATE_MESSAGE, ON_UPDATE_MESSAGE } from "../graphql/subscriptions";
-import { useStore } from '../stores/store';
+import { useStore } from "../stores/store";
 
 const styles: any = {
   messageContent: {
-    marginTop: 20
+    marginTop: 20,
   },
   messageItem: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    backgroundColor: 'lightyellow',
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    backgroundColor: "lightyellow",
     paddingLeft: 20,
     paddingRight: 20,
   },
   messageItemUser: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    backgroundColor: 'lightgray',
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    backgroundColor: "lightgray",
     paddingLeft: 20,
     paddingRight: 20,
   },
   editButton: {
     marginLeft: 10,
     border: 0,
-    backgroundColor: 'none',
-    height: 28
+    backgroundColor: "none",
+    height: 28,
   },
   updateInput: {
     marginTop: 20,
-    display: 'flex',
+    display: "flex",
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
   typeInput: {
     marginTop: 20,
     padding: 20,
-    backgroundColor: '#ffeeff',
-    display: 'flex',
+    backgroundColor: "#ffeeff",
+    display: "flex",
     flex: 1,
-    justifyContent: 'center'
+    justifyContent: "center",
   },
   input: {
     height: 20,
     padding: 12,
-    width: '100%'
-  }
-}
+    width: "100%",
+  },
+};
 // TODO split code into components
 
 interface ICreateMessageInput {
@@ -138,7 +137,6 @@ const CreateMessage = ({ roomId }) => {
     setMessage("");
   }
 
-
   return (
     <div style={styles.typeInput}>
       <input
@@ -195,7 +193,10 @@ const UpdateMessage = ({ message, onClose }) => {
   );
 };
 
-const Message = ({ message: { id, content, author, authorId, status }, subscribeToMore }) => {
+const Message = ({
+  message: { id, content, author, authorId, status },
+  subscribeToMore,
+}) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedMessageId, setSelectedMessageId] = useState();
   const [mutate] = useUpdateMessageMutation();
@@ -209,13 +210,13 @@ const Message = ({ message: { id, content, author, authorId, status }, subscribe
   }, [subscribeToMore, id]);
 
   function onStartEditMessage(id: string) {
-    setIsEditMode(!isEditMode)
-    setSelectedMessageId(id)
+    setIsEditMode(!isEditMode);
+    setSelectedMessageId(id);
   }
 
   function onFinishEditMessage() {
-    setIsEditMode(!isEditMode)
-    setSelectedMessageId(null)
+    setIsEditMode(!isEditMode);
+    setSelectedMessageId(null);
   }
 
   if (authorId !== USER.id) {
@@ -225,26 +226,25 @@ const Message = ({ message: { id, content, author, authorId, status }, subscribe
           {author.username}: {content}
         </p>
       </div>
-    )
+    );
   }
 
-  if (status === 'deleted') {
+  if (status === "deleted") {
     return (
       <div style={styles.messageItemUser}>
         <p>Deleted</p>
       </div>
-    )
+    );
   }
 
   return (
     <div key={id}>
-      {
-        isEditMode && selectedMessageId === id ? (
-          <UpdateMessage
-            message={{ id, content }}
-            onClose={() => onFinishEditMessage()}
-          />  
-        ) : (
+      {isEditMode && selectedMessageId === id ? (
+        <UpdateMessage
+          message={{ id, content }}
+          onClose={() => onFinishEditMessage()}
+        />
+      ) : (
         <div
           style={styles.messageItemUser}
           onDoubleClick={() => onStartEditMessage(id)}
@@ -259,16 +259,15 @@ const Message = ({ message: { id, content, author, authorId, status }, subscribe
             Edit
           </button>
           <button
-            onClick={() => mutate({ id, status: 'deleted'})}
+            onClick={() => mutate({ id, status: "deleted" })}
             style={styles.editButton}
           >
             X
           </button>
         </div>
-        )
-      }
+      )}
     </div>
-  )
+  );
 };
 
 const Messages = ({ roomId }) => {
@@ -281,10 +280,14 @@ const Messages = ({ roomId }) => {
       document: ON_CREATE_MESSAGE,
       variables: { chatRoomId: roomId },
       updateQuery: (prev, { subscriptionData: { data } }) => {
-        if (!data) { return prev; }
+        if (!data) {
+          return prev;
+        }
 
         const newMessageItem = data.onCreateMessage;
-        const prevChatRoomMessages = prev.getChatRoom.messages.filter(message => message.id !== data.onCreateMessage.id);
+        const prevChatRoomMessages = prev.getChatRoom.messages.filter(
+          (message) => message.id !== data.onCreateMessage.id,
+        );
 
         return Object.assign({}, prev, {
           getChatRoom: {
@@ -303,14 +306,14 @@ const Messages = ({ roomId }) => {
   const chatRoom = data && data.getChatRoom;
   const { messages } = chatRoom;
 
-  return messages.map(message => (
+  return messages.map((message) => (
     <div key={message.id} style={styles.messageContent}>
       <Message message={message} subscribeToMore={subscribeToMore} />
     </div>
   ));
 };
 
-const ChatRoomMessages = observer(() => {
+const ChatRoomMessages = () => {
   const { currentChatId } = useStore();
 
   // TODO should be another logic
@@ -326,6 +329,6 @@ const ChatRoomMessages = observer(() => {
       <CreateMessage roomId={currentChatId} />
     </div>
   );
-});
+};
 
 export default ChatRoomMessages;
