@@ -1,10 +1,8 @@
-import { useMutation, useQuery } from "@apollo/react-hooks";
 import React, { useState } from "react";
 
-import { USER } from "../config";
-import { CREATE_CHATROOM } from "../graphql/mutations";
-import { GET_USER, LIST_USERS } from "../graphql/queries";
+import { useCreateChatRoomMutation, useListUsersQuery } from "../hooks/hooks";
 import { useStore } from "../stores/store";
+import CreateMessage from "./CreateMessage";
 
 const styles: any = {
   modal: {
@@ -20,46 +18,17 @@ const styles: any = {
   },
 };
 
-interface ICreateChatRoomInput {
-  members: string[];
-  name: string;
-}
-
 // TODO split code into components
-
-const useListUsersQuery = () => useQuery(LIST_USERS);
-const useCreateChatRoomMutation = () => {
-  const [createChatRoom] = useMutation(CREATE_CHATROOM, {
-    refetchQueries() {
-      return [
-        {
-          query: GET_USER,
-          variables: { id: USER.id },
-        },
-      ];
-    },
-  });
-
-  return (id, username) => {
-    return createChatRoom({
-      variables: {
-        input: {
-          members: [username, USER.username],
-          name: `Chat with ${username}`,
-        },
-      },
-    });
-  };
-};
 
 const ListUsers = ({ onCreateChatRoom }) => {
   const { data, loading } = useListUsersQuery();
-  const mutate = useCreateChatRoomMutation();
+  const { userId } = useStore();
+  const mutate = useCreateChatRoomMutation(userId);
 
   async function create(id, username) {
     const {
       data: { createChatRoom },
-    } = await mutate(id, username);
+    } = await mutate(id, username, userId);
 
     if (createChatRoom) {
       onCreateChatRoom(createChatRoom.id);
@@ -75,15 +44,19 @@ const ListUsers = ({ onCreateChatRoom }) => {
     return <p>No users</p>;
   }
 
-  return users
-    .filter((user) => user.id !== USER.id)
-    .map(({ username, id }) => (
+  return users.map(({ username, id }) => {
+    if (id === userId) {
+      return null;
+    }
+
+    return (
       <div key={id}>
         <button onClick={() => create(id, username)}>
           <p>{username}</p>
         </button>
       </div>
-    ));
+    );
+  });
 };
 
 const Modal = ({ onClose, ...props }) => {
@@ -100,6 +73,7 @@ const CreateChat = () => {
   const { setCurrentChatId } = useStore();
 
   const onCreateChatRoom = (id) => {
+    console.log("onCreateChatRoom", id);
     setIsShowModal(false);
     setCurrentChatId(id);
   };

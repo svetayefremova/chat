@@ -1,59 +1,41 @@
 import { PubSub, withFilter } from "apollo-server";
-import uuid from "uuidv4";
+import moment from "moment";
 
-import { USER } from "../../src/config";
-// import Message from './models/message';
 import ChatRoom from "./models/chatRoom";
+import Message from "./models/message";
 import User from "./models/user";
 
 const pubsub = new PubSub();
 
-// example data
-const messages = [
-  {
-    id: "1",
-    author: {
-      id: "1",
-      username: "Svieta",
-    },
-    authorId: "1",
-    content: "hello alice",
-    chatRoomId: "1",
-    status: null
-  },
-  {
-    id: "2",
-    author: {
-      id: "2",
-      username: "Alice",
-    },
-    authorId: "2",
-    content: "hello Svieta",
-    chatRoomId: "1",
-    status: null
-  },
-];
-const chatRooms = [
-  {
-    id: "1",
-    messages,
-    name: "Chat 1",
-    members: ["Svieta", "Alice"],
-  },
-];
-
 enum MessageStatus {
-  updated = "updated", deleted = "deleted"
+  updated = "updated",
+  deleted = "deleted"
 }
 
 export const resolvers = {
+  User: {
+    chatRooms: async ({ id }) => {
+      return await ChatRoom.find({ members: id });
+    }
+  },
+
+  Message: {
+    author: async ({ authorId }) => {
+      return await User.findById(authorId);
+    }
+  },
+
+  ChatRoom: {
+    messages: async ({ id }) => {
+      return await Message.find({ chatRoomId: id });
+    }
+  },
+
   Query: {
     listUsers: async () => {
       const users: any[] = await User.find();
 
       return users.map(user => user.toObject());
-
-      // return users;
     },
 
     getUser: async (_, { id }) => {
@@ -62,8 +44,6 @@ export const resolvers = {
       if (user) {
         return user.toObject();
       }
-
-      // return users.find((user) => user.id === id);
     },
 
     getChatRoom: async (_, { id }) => {
@@ -72,8 +52,6 @@ export const resolvers = {
       if (chatRoom) {
         return chatRoom.toObject();
       }
-
-      // return chatRooms.find((chatRoom) => chatRoom.id === id);
     },
   },
 
@@ -86,8 +64,8 @@ export const resolvers = {
       if (!user) {
         user = await User.create({
           ...input,
-          createdAt: Date.now(),
-          updatedAt: Date.now()
+          createdAt: moment.utc().unix(),
+          updatedAt: moment.utc().unix()
         });
 
         return user.toObject();     
@@ -95,55 +73,53 @@ export const resolvers = {
     },
 
     createMessage: async (_, { input }) => {
-      const message = {
-        id: uuid(),
-        content: input.content,
-        authorId: input.authorId,
-        chatRoomId: input.chatRoomId,
-        author: USER,
-        status: null
-      };
-
-      messages.push(message);
+      const message = await Message.create({
+        ...input,
+        status: null,
+        createdAt: moment.utc().unix(),
+        updatedAt: moment.utc().unix()
+      });
 
       pubsub.publish("onCreateMessage", {
         onCreateMessage: message,
       });
 
-      return message;
+      return message.toObject();
     },
 
     updateMessage: async (_, { input }) => {
-      messages.map(message => {
-        if (message.id === input.id) {
-          message.content = input.content || "",
-          message.status = input.status || MessageStatus.updated;
+      const message = await Message.findByIdAndUpdate(input.id,
+        {
+          content: input.content || "",
+          status: input.status || MessageStatus.updated,
+          updatedAt: moment.utc().unix(),
+        }, {
+          upsert: true,
+          new: true
         }
-        return message;
-      });
-
-      const message = messages.find(message => message.id === input.id);
-
-      console.log("message", message);
+      );
 
       pubsub.publish("onUpdateMessage", {
         onUpdateMessage: message
       });
 
-      return message;
+      return message.toObject();
     },
   
     createChatRoom: async (_, { input }) => {
-      const chat = {
-        id: uuid(),
+      let chatRoom: any = await ChatRoom.findOne({
         members: input.members,
-        name: input.name,
-        messages: [],
-      };
+      });
 
-      chatRooms.push(chat);
-
-      return chat;
+      if (!chatRoom) {
+        chatRoom = await ChatRoom.create({
+          ...input,
+          createdAt: moment.utc().unix(),
+          updatedAt: moment.utc().unix()
+        });
+       
+        return chatRoom.toObject();     
+      }
     },
   },
 

@@ -1,11 +1,16 @@
-import { useMutation, useQuery, useSubscription } from "@apollo/react-hooks";
+import { observer } from "mobx-react";
 import React, { useEffect, useState } from "react";
 
-import { USER } from "../config";
-import { CREATE_MESSAGE, UPDATE_MESSAGE } from "../graphql/mutations";
-import { GET_CHATROOM } from "../graphql/queries";
 import { ON_CREATE_MESSAGE, ON_UPDATE_MESSAGE } from "../graphql/subscriptions";
+import {
+  IUpdateMessageInput,
+  useCreateMessageSubscription,
+  useGetChatRoomQuery,
+  useUpdateMessageMutation,
+  useUpdateMessageSubscription,
+} from "../hooks/hooks";
 import { useStore } from "../stores/store";
+import CreateMessage from "./CreateMessage";
 
 const styles: any = {
   messageContent: {
@@ -57,102 +62,6 @@ const styles: any = {
 };
 // TODO split code into components
 
-interface ICreateMessageInput {
-  chatRoomId: string;
-  authorId: string;
-  content: string;
-}
-
-interface IUpdateMessageInput {
-  id: string;
-  content: string;
-}
-
-const useGetChatRoomQuery = (roomId) =>
-  useQuery(GET_CHATROOM, { variables: { id: roomId } });
-const useCreateMessageMutation = (roomId) => {
-  const [createMessage, { loading, error }] = useMutation(CREATE_MESSAGE, {
-    update(cache, { data }) {
-      const { getChatRoom } = cache.readQuery({
-        query: GET_CHATROOM,
-        variables: { id: roomId },
-      });
-      cache.writeQuery({
-        query: GET_CHATROOM,
-        data: {
-          getChatRoom: {
-            ...getChatRoom,
-            messages: getChatRoom.messages.concat([data.createMessage]),
-          },
-        },
-      });
-    },
-  });
-
-  // TODO types definition
-  const mutation: any = [
-    (input: ICreateMessageInput) => createMessage({ variables: { input } }),
-    loading,
-    error,
-  ];
-
-  return mutation;
-};
-const useUpdateMessageMutation = () => {
-  const [updateMessage, { loading, error }] = useMutation(UPDATE_MESSAGE);
-
-  // TODO types definition
-  const mutation: any = [
-    (input: IUpdateMessageInput) => updateMessage({ variables: { input } }),
-    loading,
-    error,
-  ];
-
-  return mutation;
-};
-const useCreateMessageSubscription = () => useSubscription(ON_CREATE_MESSAGE);
-const useUpdateMessageSubscription = () => useSubscription(ON_UPDATE_MESSAGE);
-
-const CreateMessage = ({ roomId }) => {
-  const [message, setMessage] = useState("");
-  const [mutate, loading, error] = useCreateMessageMutation(roomId);
-
-  async function create(e: React.KeyboardEvent) {
-    if (e.key !== "Enter") {
-      return;
-    }
-
-    if (message === "") {
-      return;
-    }
-
-    const createMessageInput: ICreateMessageInput = {
-      content: message,
-      authorId: USER.id,
-      chatRoomId: roomId,
-    };
-
-    await mutate(createMessageInput);
-
-    setMessage("");
-  }
-
-  return (
-    <div style={styles.typeInput}>
-      <input
-        name="message"
-        placeholder="Type your message"
-        onChange={(e) => setMessage(e.target.value)}
-        onKeyPress={(e) => create(e)}
-        value={message}
-        style={styles.input}
-      />
-      {loading && <p>Loading...</p>}
-      {error && <p>Error :( Please try again</p>}
-    </div>
-  );
-};
-
 const UpdateMessage = ({ message, onClose }) => {
   const [content, setContent] = useState(message.content);
   const [mutate, loading, error] = useUpdateMessageMutation();
@@ -199,6 +108,7 @@ const Message = ({
 }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedMessageId, setSelectedMessageId] = useState();
+  const { userId } = useStore();
   const [mutate] = useUpdateMessageMutation();
 
   useEffect(() => {
@@ -219,7 +129,7 @@ const Message = ({
     setSelectedMessageId(null);
   }
 
-  if (authorId !== USER.id) {
+  if (authorId !== userId) {
     return (
       <div style={styles.messageItem}>
         <p style={styles.message}>
@@ -276,6 +186,7 @@ const Messages = ({ roomId }) => {
   const { loading, data, subscribeToMore } = useGetChatRoomQuery(roomId);
 
   useEffect(() => {
+    // TODO also update getUser query to get all chatRooms
     subscribeToMore({
       document: ON_CREATE_MESSAGE,
       variables: { chatRoomId: roomId },
@@ -306,6 +217,10 @@ const Messages = ({ roomId }) => {
   const chatRoom = data && data.getChatRoom;
   const { messages } = chatRoom;
 
+  if (!messages || !messages.length) {
+    return <p>There are no messages yet</p>;
+  }
+
   return messages.map((message) => (
     <div key={message.id} style={styles.messageContent}>
       <Message message={message} subscribeToMore={subscribeToMore} />
@@ -313,8 +228,9 @@ const Messages = ({ roomId }) => {
   ));
 };
 
-const ChatRoomMessages = () => {
+const ChatRoomMessages = observer(() => {
   const { currentChatId } = useStore();
+  console.log("currentChatId", currentChatId);
 
   // TODO should be another logic
   // maybe open first chat by default with bot user?
@@ -329,6 +245,6 @@ const ChatRoomMessages = () => {
       <CreateMessage roomId={currentChatId} />
     </div>
   );
-};
+});
 
 export default ChatRoomMessages;

@@ -7,13 +7,15 @@
   "scripts": {
     "start": "node ./build/main.js",
     "dev": "backpack dev",
-    "build": "backpack build"
+    "build": "backpack build",
+    "database": "/Users/yes/Projects/Database/mongodb/bin/mongod --dbpath /Users/yes/Projects/Database/db/"
   },
   "dependencies": {
     "apollo-server": "^2.9.5",
     "backpack-core": "^0.8.4",
     "graphql": "^14.5.8",
     "graphql-tools": "^4.0.5",
+    "moment": "^2.24.0",
     "mongoose": "^5.7.4",
     "uuidv4": "^5.0.1"
   },

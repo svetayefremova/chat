@@ -1,15 +1,12 @@
-import { useQuery } from "@apollo/react-hooks";
 import React from "react";
 
-import { GET_USER } from "../graphql/queries";
+import { useGetUserQuery } from "../hooks/hooks";
 import { useStore } from "../stores/store";
 import CreateChat from "./CreateChat";
 
 const linkStyle = {
   marginRight: 15,
 };
-
-const useGetUserQuery = (id) => useQuery(GET_USER, { variables: { id } });
 
 const ChatRooms = () => {
   const { userId, setCurrentChatId } = useStore();
@@ -20,6 +17,8 @@ const ChatRooms = () => {
   }
 
   const chatRooms = data && data.getUser && data.getUser.chatRooms;
+
+  console.log("user", data.getUser);
 
   if (!chatRooms || !chatRooms.length) {
     return (

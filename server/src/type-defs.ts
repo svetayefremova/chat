@@ -67,7 +67,7 @@ export const typeDefs = gql`
 
   # the schema allows the following subscription:
   type Subscription {
-    onCreateMessage(chatRoomId: String!): Message
-    onUpdateMessage(id: String!): Message
+    onCreateMessage(chatRoomId: ID!): Message
+    onUpdateMessage(id: ID!): Message
   }
 `;

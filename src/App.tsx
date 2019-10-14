@@ -16,6 +16,7 @@ import { StoreProvider, useStore } from "./stores/store";
 
 const PrivateRoute = ({ children, ...rest }) => {
   const { userId } = useStore();
+  console.log(userId);
 
   return (
     <Route

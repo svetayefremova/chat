@@ -1,8 +1,7 @@
-import { useMutation } from "@apollo/react-hooks";
 import useForm from "rc-form-hooks";
 import React, { useState } from "react";
 
-import { CREATE_USER } from "../graphql/mutations";
+import { useCreateUserMutation } from "../hooks/hooks";
 
 const style: any = {
   form: {
@@ -10,15 +9,6 @@ const style: any = {
     flexDirection: "column",
     alignItems: "center",
   },
-};
-
-const useCreateUserMutation = () => {
-  const [createUser] = useMutation(CREATE_USER);
-
-  return (username: string) =>
-    createUser({
-      variables: { input: { username } },
-    });
 };
 
 const AuthForm = ({ onSubmit }) => {
