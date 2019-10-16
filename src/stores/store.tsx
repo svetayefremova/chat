@@ -4,12 +4,12 @@ import React, { createContext, useContext } from "react";
 const storeContext = createContext(null);
 
 const createStore = () => ({
-  userId: localStorage.getItem("userId"),
+  userId: null,
   currentChatId: null,
 
   setUserId(id: string) {
+    console.log("setUserId", id);
     this.userId = id;
-    localStorage.setItem("userId", id);
   },
 
   setCurrentChatId(id: string) {

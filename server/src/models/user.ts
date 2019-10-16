@@ -3,6 +3,7 @@ import { IChatRoom } from "./chatRoom";
 
 export interface IUser extends Document {
   username: string;
+  password: string;
   chatRooms: [IChatRoom];
   createdAt: number;
   updatedAt: number;
@@ -10,6 +11,7 @@ export interface IUser extends Document {
 
 const userSchema: Schema = new Schema({
   username: { type: String, unique: true, trim: true, required: true },
+  password: { type: String },
   chatRooms: [{ type: mongoose.Schema.Types.ObjectId, ref: "ChatRoom" }],
   createdAt: { type: Number },
   updatedAt: { type: Number }

@@ -1,5 +1,20 @@
 import gql from "graphql-tag";
 
+export const CURRENT_USER = gql`
+  query {
+    currentUser {
+      id
+      username
+      chatRooms {
+        id
+        name
+        members
+        isGroupChat
+      }
+    }
+  }
+`;
+
 export const GET_USER = gql`
   query getUser($id: ID!) {
     getUser(id: $id) {
@@ -8,10 +23,13 @@ export const GET_USER = gql`
       chatRooms {
         id
         name
+        members
+        isGroupChat
       }
     }
   }
 `;
+
 export const LIST_USERS = gql`
   query {
     listUsers {

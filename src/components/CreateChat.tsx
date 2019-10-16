@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { useCreateChatRoomMutation, useListUsersQuery } from "../hooks/hooks";
+import {
+  ICreateMessageInput,
+  useCreateChatRoomMutation,
+  useCreateMessageMutation,
+  useListUsersQuery,
+} from "../hooks/hooks";
 import { useStore } from "../stores/store";
-import CreateMessage from "./CreateMessage";
 
 const styles: any = {
   modal: {
@@ -20,20 +24,9 @@ const styles: any = {
 
 // TODO split code into components
 
-const ListUsers = ({ onCreateChatRoom }) => {
+const ListUsers = ({ onCreateChat }) => {
   const { data, loading } = useListUsersQuery();
   const { userId } = useStore();
-  const mutate = useCreateChatRoomMutation(userId);
-
-  async function create(id, username) {
-    const {
-      data: { createChatRoom },
-    } = await mutate(id, username, userId);
-
-    if (createChatRoom) {
-      onCreateChatRoom(createChatRoom.id);
-    }
-  }
 
   if (loading) {
     return <p>Loading...</p>;
@@ -51,7 +44,7 @@ const ListUsers = ({ onCreateChatRoom }) => {
 
     return (
       <div key={id}>
-        <button onClick={() => create(id, username)}>
+        <button onClick={() => onCreateChat(id)}>
           <p>{username}</p>
         </button>
       </div>
@@ -70,20 +63,33 @@ const Modal = ({ onClose, ...props }) => {
 
 const CreateChat = () => {
   const [isShowModal, setIsShowModal] = useState(false);
-  const { setCurrentChatId } = useStore();
+  const { userId, setCurrentChatId, currentChatId } = useStore();
+  const mutate = useCreateChatRoomMutation(userId);
+  const [createFirstMessage] = useCreateMessageMutation(currentChatId);
 
-  const onCreateChatRoom = (id) => {
-    console.log("onCreateChatRoom", id);
+  useEffect(() => {
+    const createMessageInput: ICreateMessageInput = {
+      content: "😀",
+      authorId: userId,
+      chatRoomId: currentChatId,
+    };
+    createFirstMessage(createMessageInput);
+  }, [currentChatId]);
+
+  async function onCreateChat(id) {
+    const {
+      data: { createChatRoom },
+    } = await mutate(userId, id);
+    setCurrentChatId(createChatRoom.id);
     setIsShowModal(false);
-    setCurrentChatId(id);
-  };
+  }
 
   return (
     <div>
       <button onClick={() => setIsShowModal(true)}>Create chat</button>
       {isShowModal ? (
         <Modal onClose={() => setIsShowModal(false)}>
-          <ListUsers onCreateChatRoom={onCreateChatRoom} />
+          <ListUsers onCreateChat={onCreateChat} />
         </Modal>
       ) : null}
     </div>

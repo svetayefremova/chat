@@ -3,10 +3,17 @@ import { useMutation, useQuery, useSubscription } from "@apollo/react-hooks";
 import {
   CREATE_CHATROOM,
   CREATE_MESSAGE,
-  CREATE_USER,
+  LOGIN,
+  LOGOUT,
+  SIGNUP,
   UPDATE_MESSAGE,
 } from "../graphql/mutations";
-import { GET_CHATROOM, GET_USER, LIST_USERS } from "../graphql/queries";
+import {
+  CURRENT_USER,
+  GET_CHATROOM,
+  GET_USER,
+  LIST_USERS,
+} from "../graphql/queries";
 import { ON_CREATE_MESSAGE, ON_UPDATE_MESSAGE } from "../graphql/subscriptions";
 
 export interface ICreateMessageInput {
@@ -26,6 +33,8 @@ export interface ICreateChatRoomInput {
 }
 
 // QUERIES
+export const useCurrentUserQuery = () => useQuery(CURRENT_USER);
+
 export const useGetUserQuery = (id) =>
   useQuery(GET_USER, { variables: { id } });
 
@@ -35,33 +44,64 @@ export const useGetChatRoomQuery = (roomId) =>
   useQuery(GET_CHATROOM, { variables: { id: roomId } });
 
 // MUTATIONS
-export const useCreateUserMutation = () => {
-  const [createUser] = useMutation(CREATE_USER);
+export const useSignUpMutation = () => {
+  const [signup] = useMutation(SIGNUP, {
+    update(cache, { data: { signup } }) {
+      cache.writeQuery({
+        query: CURRENT_USER,
+        data: { currentUser: signup },
+      });
+    },
+  });
 
-  return (username: string) =>
-    createUser({
-      variables: { input: { username } },
+  return (username: string, password: string) =>
+    signup({
+      variables: { input: { username, password } },
+    });
+};
+
+export const useLogoutMutation = () => {
+  const [logout] = useMutation(LOGOUT, {
+    update(cache) {
+      cache.writeQuery({
+        query: CURRENT_USER,
+        data: { currentUser: null },
+      });
+    },
+  });
+
+  return () => logout();
+};
+
+export const useLoginMutation = () => {
+  const [login] = useMutation(LOGIN, {
+    update(cache, { data: { login } }) {
+      cache.writeQuery({
+        query: CURRENT_USER,
+        data: { currentUser: login },
+      });
+    },
+  });
+
+  return (username: string, password: string) =>
+    login({
+      variables: { input: { username, password } },
     });
 };
 
 export const useCreateChatRoomMutation = (id) => {
   const [createChatRoom] = useMutation(CREATE_CHATROOM, {
     refetchQueries() {
-      return [
-        {
-          query: GET_USER,
-          variables: { id },
-        },
-      ];
+      return [{ query: CURRENT_USER }];
     },
   });
 
-  return (id, username, currentUserId) => {
+  return (currentUserId, otherUserId) => {
     return createChatRoom({
       variables: {
         input: {
-          members: [currentUserId, id],
-          name: `Chat with ${username}`,
+          members: [currentUserId, otherUserId].sort(),
+          isGroupChat: false,
         },
       },
     });

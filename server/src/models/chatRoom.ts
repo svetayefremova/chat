@@ -5,6 +5,7 @@ export interface IChatRoom extends Document {
   messages: [IMessage];
   name: string;
   members: [string];
+  isGroupChat: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -13,6 +14,7 @@ const charRoomSchema: Schema = new Schema({
   name: { type: String },
   messages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }],
   members: [{ type: String }],
+  isGroupChat: { type: Boolean },
   createdAt: { type: Number },
   updatedAt: { type: Number }
 });

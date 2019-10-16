@@ -1,11 +1,38 @@
 import gql from "graphql-tag";
 
-export const CREATE_USER = gql`
-  mutation createUser($input: CreateUserInput!) {
-    createUser(input: $input) {
+export const SIGNUP = gql`
+  mutation signup($input: AuthInput!) {
+    signup(input: $input) {
       id
       username
+      chatRooms {
+        id
+        name
+        members
+        isGroupChat
+      }
     }
+  }
+`;
+
+export const LOGIN = gql`
+  mutation login($input: AuthInput!) {
+    login(input: $input) {
+      id
+      username
+      chatRooms {
+        id
+        name
+        members
+        isGroupChat
+      }
+    }
+  }
+`;
+
+export const LOGOUT = gql`
+  mutation {
+    logout
   }
 `;
 
@@ -74,6 +101,7 @@ export const CREATE_CHATROOM = gql`
       }
       name
       members
+      isGroupChat
     }
   }
 `;

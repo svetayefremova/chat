@@ -1,63 +1,63 @@
 import { ApolloProvider } from "@apollo/react-hooks";
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Redirect,
-  Route,
-  Switch,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import apolloClient from "./apollo/client";
+import { useCurrentUserQuery } from "./hooks/hooks";
 import Chat from "./pages/Chat";
 import Login from "./pages/Login";
 import NoMatch from "./pages/NoMatch";
-import SignIn from "./pages/SignIn";
+import Signup from "./pages/Signup";
 import { StoreProvider, useStore } from "./stores/store";
 
-const PrivateRoute = ({ children, ...rest }) => {
-  const { userId } = useStore();
-  console.log(userId);
+const AppRoutes = () => {
+  const { data, loading } = useCurrentUserQuery();
+  const { setUserId } = useStore();
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  const currentUser = data && data.currentUser;
+
+  if (!currentUser) {
+    setUserId(null);
+    return (
+      <>
+        <Route exact path="/">
+          <Login />
+        </Route>
+        <Route path="/register">
+          <Signup />
+        </Route>
+      </>
+    );
+  }
+
+  setUserId(currentUser.id);
 
   return (
-    <Route
-      {...rest}
-      render={({ location }) =>
-        userId ? (
-          children
-        ) : (
-          <Redirect
-            to={{
-              pathname: "/login",
-              state: { from: location },
-            }}
-          />
-        )
-      }
-    />
+    <Route exact path="/">
+      <Chat />
+    </Route>
   );
 };
 
-const App = () => (
-  <StoreProvider>
-    <ApolloProvider client={apolloClient}>
-      <Router>
-        <Switch>
-          <PrivateRoute exact path="/">
-            <Chat />
-          </PrivateRoute>
-          <Route path="/login">
-            <Login />
-          </Route>
-          <Route path="/register">
-            <SignIn />
-          </Route>
-          <Route path="*">
-            <NoMatch />
-          </Route>
-        </Switch>
-      </Router>
-    </ApolloProvider>
-  </StoreProvider>
-);
+const App = () => {
+  return (
+    <StoreProvider>
+      <ApolloProvider client={apolloClient}>
+        <Router>
+          <Switch>
+            <AppRoutes />
+            <Route path="*">
+              <NoMatch />
+            </Route>
+          </Switch>
+        </Router>
+      </ApolloProvider>
+    </StoreProvider>
+  );
+};
 
 export default App;

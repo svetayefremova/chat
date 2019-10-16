@@ -4,6 +4,7 @@ export const typeDefs = gql`
   type User {
     id: ID!
     username: String!
+    password: String!
     chatRooms: [ChatRoom]
     createdAt: String
     updatedAt: String
@@ -23,24 +24,22 @@ export const typeDefs = gql`
   type ChatRoom {
     id: ID!
     messages: [Message]
-    name: String!
+    name: String
     members: [String!]!
+    isGroupChat: Boolean
     createdAt: String
     updatedAt: String
   }
 
   # the schema allows the following query:
   type Query {
+    currentUser: User
     listUsers: [User]
     getUser(id: ID!): User
     getChatRoom(id: ID!): ChatRoom
   }
 
   # the schema allows the following mutation:
-  input CreateUserInput {
-    username: String!
-  }
-
   input CreateMessageInput {
     chatRoomId: ID!
     authorId: ID!
@@ -55,11 +54,19 @@ export const typeDefs = gql`
 
   input CreateChatRoomInput {
     members: [String!]!
-    name: String!
+    name: String
+    isGroupChat: Boolean!
+  }
+
+  input AuthInput {
+    username: String!
+    password: String!
   }
 
   type Mutation {
-    createUser(input: CreateUserInput!): User
+    signup(input: AuthInput): User
+    login(input: AuthInput): User
+    logout: Boolean
     createMessage(input: CreateMessageInput!): Message
     updateMessage(input: UpdateMessageInput!): Message
     createChatRoom(input: CreateChatRoomInput!): ChatRoom

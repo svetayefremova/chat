@@ -32,6 +32,8 @@ export const resolvers = {
   },
 
   Query: {
+    currentUser: (_, args, context) => context.getUser(),
+
     listUsers: async () => {
       const users: any[] = await User.find();
 
@@ -56,20 +58,34 @@ export const resolvers = {
   },
 
   Mutation: {
-    createUser: async (_, { input }) => {
+    signup: async (_, { input }, context) => {
       let user: any = await User.findOne({
         username: input.username,
       });
 
-      if (!user) {
-        user = await User.create({
-          ...input,
-          createdAt: moment.utc().unix(),
-          updatedAt: moment.utc().unix()
-        });
-
-        return user.toObject();     
+      if (user) {
+        throw new Error("User with username already exists");
       }
+
+      user = await User.create({
+        ...input,
+        createdAt: moment.utc().unix(),
+        updatedAt: moment.utc().unix()
+      });
+
+      context.login(user);
+
+      return user.toObject();     
+    },
+
+    logout: (_, args, context) => context.logout(),
+
+    login: async (_, { input }, context) => {
+      const { user } = await context.authenticate("graphql-local", {
+        username: input.username, password: input.password
+      });
+      context.login(user);
+      return user;
     },
 
     createMessage: async (_, { input }) => {
@@ -117,9 +133,8 @@ export const resolvers = {
           createdAt: moment.utc().unix(),
           updatedAt: moment.utc().unix()
         });
-       
-        return chatRoom.toObject();     
       }
+      return chatRoom.toObject();  
     },
   },
 

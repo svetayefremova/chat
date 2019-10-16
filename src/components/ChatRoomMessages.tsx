@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 
 import { ON_CREATE_MESSAGE, ON_UPDATE_MESSAGE } from "../graphql/subscriptions";
 import {
-  IUpdateMessageInput,
   useCreateMessageSubscription,
   useGetChatRoomQuery,
   useUpdateMessageMutation,
@@ -11,6 +10,7 @@ import {
 } from "../hooks/hooks";
 import { useStore } from "../stores/store";
 import CreateMessage from "./CreateMessage";
+import UpdateMessage from "./UpdateMessage";
 
 const styles: any = {
   messageContent: {
@@ -61,46 +61,6 @@ const styles: any = {
   },
 };
 // TODO split code into components
-
-const UpdateMessage = ({ message, onClose }) => {
-  const [content, setContent] = useState(message.content);
-  const [mutate, loading, error] = useUpdateMessageMutation();
-
-  async function update(e: React.KeyboardEvent) {
-    if (e.key !== "Enter") {
-      return;
-    }
-
-    if (content === "") {
-      onClose();
-      return;
-    }
-
-    const updateMessageInput: IUpdateMessageInput = {
-      content,
-      id: message.id,
-    };
-
-    await mutate(updateMessageInput);
-    onClose();
-  }
-
-  return (
-    <div style={styles.updateInput}>
-      <input
-        name="message"
-        placeholder="Type your message"
-        onChange={(e) => setContent(e.target.value)}
-        onKeyPress={(e) => update(e)}
-        value={content}
-        style={styles.input}
-      />
-      <button onClick={onClose}>X</button>
-      {loading && <p>Loading...</p>}
-      {error && <p>Error :( Please try again</p>}
-    </div>
-  );
-};
 
 const Message = ({
   message: { id, content, author, authorId, status },
@@ -186,7 +146,7 @@ const Messages = ({ roomId }) => {
   const { loading, data, subscribeToMore } = useGetChatRoomQuery(roomId);
 
   useEffect(() => {
-    // TODO also update getUser query to get all chatRooms
+    // TODO also update currentUser query to get all chatRooms
     subscribeToMore({
       document: ON_CREATE_MESSAGE,
       variables: { chatRoomId: roomId },
