@@ -11,10 +11,15 @@ import {
 import {
   CURRENT_USER,
   GET_CHATROOM,
+  GET_NOTIFICATIONS,
   GET_USER,
   LIST_USERS,
 } from "../graphql/queries";
-import { ON_CREATE_MESSAGE, ON_UPDATE_MESSAGE } from "../graphql/subscriptions";
+import {
+  NEW_NOTIFICATION,
+  ON_CREATE_MESSAGE,
+  ON_UPDATE_MESSAGE,
+} from "../graphql/subscriptions";
 
 export interface ICreateMessageInput {
   chatRoomId: string;
@@ -42,6 +47,8 @@ export const useListUsersQuery = () => useQuery(LIST_USERS);
 
 export const useGetChatRoomQuery = (roomId) =>
   useQuery(GET_CHATROOM, { variables: { id: roomId } });
+
+export const useGetNotificationsQuery = () => useQuery(GET_NOTIFICATIONS);
 
 // MUTATIONS
 export const useSignUpMutation = () => {
@@ -110,20 +117,8 @@ export const useCreateChatRoomMutation = (id) => {
 
 export const useCreateMessageMutation = (roomId) => {
   const [createMessage, { loading, error }] = useMutation(CREATE_MESSAGE, {
-    update(cache, { data }) {
-      const { getChatRoom } = cache.readQuery({
-        query: GET_CHATROOM,
-        variables: { id: roomId },
-      });
-      cache.writeQuery({
-        query: GET_CHATROOM,
-        data: {
-          getChatRoom: {
-            ...getChatRoom,
-            messages: getChatRoom.messages.concat([data.createMessage]),
-          },
-        },
-      });
+    refetchQueries() {
+      return [{ query: GET_CHATROOM, variables: { id: roomId } }];
     },
   });
 
@@ -156,3 +151,8 @@ export const useCreateMessageSubscription = () =>
 
 export const useUpdateMessageSubscription = () =>
   useSubscription(ON_UPDATE_MESSAGE);
+
+export const useNewNotificationSubscription = (userId) =>
+  useSubscription(NEW_NOTIFICATION, {
+    variables: { userId },
+  });

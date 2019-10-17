@@ -3,6 +3,7 @@ import React from "react";
 import ChatRoomMessages from "../components/ChatRoomMessages";
 import ChatRooms from "../components/ChatRooms";
 import Layout from "../components/Layout";
+import Notification from "../components/Notification";
 
 const styles: any = {
   chat: {
@@ -21,7 +22,7 @@ const styles: any = {
   },
 };
 
-const Chat = (props) => {
+const Chat = () => {
   return (
     <Layout>
       <div style={styles.chat}>
@@ -32,6 +33,7 @@ const Chat = (props) => {
           <ChatRoomMessages />
         </div>
       </div>
+      <Notification />
     </Layout>
   );
 };

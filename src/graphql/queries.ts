@@ -9,6 +9,10 @@ export const CURRENT_USER = gql`
         id
         name
         members
+        messages {
+          id
+          content
+        }
         isGroupChat
       }
     }
@@ -24,6 +28,10 @@ export const GET_USER = gql`
         id
         name
         members
+        messages {
+          id
+          content
+        }
         isGroupChat
       }
     }
@@ -53,8 +61,26 @@ export const GET_CHATROOM = gql`
         }
         authorId
         chatRoomId
+        chatRoom {
+          id
+          name
+          members
+          messages {
+            id
+            content
+          }
+          isGroupChat
+        }
         status
       }
+    }
+  }
+`;
+
+export const GET_NOTIFICATIONS = gql`
+  query {
+    getNotifications {
+      label
     }
   }
 `;

@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 
+import { NEW_NOTIFICATION } from "../graphql/subscriptions";
 import { useCurrentUserQuery, useGetUserQuery } from "../hooks/hooks";
 import { useStore } from "../stores/store";
 import CreateChat from "./CreateChat";
@@ -14,22 +15,41 @@ const ChatRoomItem = ({ room, onSelectChatRoom }) => {
 
   const { data, loading } = useGetUserQuery(otherUserId);
 
-  if (loading) { return <p>...</p>; }
+  if (loading) {
+    return <p>...</p>;
+  }
 
   const chatUser = data && data.getUser;
+  const lastMessage = room.messages.length
+    ? room.messages[room.messages.length - 1].content
+    : "";
 
-  if (!chatUser) { return <p>Undefined user</p>; }
+  if (!chatUser) {
+    return <p>Undefined user</p>;
+  }
 
   return (
     <li key={room.id} onClick={onSelectChatRoom}>
       <p style={linkStyle}>{chatUser.username}</p>
+      <p>{lastMessage}</p>
     </li>
   );
 };
 
 const ChatRooms = () => {
-  const { loading, data } = useCurrentUserQuery();
-  const { setCurrentChatId } = useStore();
+  const { loading, data, refetch, subscribeToMore } = useCurrentUserQuery();
+  const { setCurrentChatId, userId } = useStore();
+
+  useEffect(() => {
+    subscribeToMore({
+      document: NEW_NOTIFICATION,
+      variables: { userId },
+      updateQuery: (prev, { subscriptionData: { data } }) => {
+        refetch();
+        return prev;
+      },
+    });
+  }, [subscribeToMore, refetch, userId]);
 
   function onSelectChatRoom(roomId) {
     setCurrentChatId(roomId);
@@ -60,6 +80,7 @@ const ChatRooms = () => {
             </li>
           ) : (
             <ChatRoomItem
+              key={room.id}
               room={room}
               onSelectChatRoom={() => onSelectChatRoom(room.id)}
             />

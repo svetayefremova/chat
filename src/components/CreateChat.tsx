@@ -1,11 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
-import {
-  ICreateMessageInput,
-  useCreateChatRoomMutation,
-  useCreateMessageMutation,
-  useListUsersQuery,
-} from "../hooks/hooks";
+import { useCreateChatRoomMutation, useListUsersQuery } from "../hooks/hooks";
 import { useStore } from "../stores/store";
 
 const styles: any = {
@@ -63,18 +58,8 @@ const Modal = ({ onClose, ...props }) => {
 
 const CreateChat = () => {
   const [isShowModal, setIsShowModal] = useState(false);
-  const { userId, setCurrentChatId, currentChatId } = useStore();
+  const { userId, setCurrentChatId } = useStore();
   const mutate = useCreateChatRoomMutation(userId);
-  const [createFirstMessage] = useCreateMessageMutation(currentChatId);
-
-  useEffect(() => {
-    const createMessageInput: ICreateMessageInput = {
-      content: "😀",
-      authorId: userId,
-      chatRoomId: currentChatId,
-    };
-    createFirstMessage(createMessageInput);
-  }, [currentChatId]);
 
   async function onCreateChat(id) {
     const {

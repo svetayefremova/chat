@@ -12,6 +12,14 @@ enum MessageStatus {
   deleted = "deleted"
 }
 
+enum Notifications {
+  NEW_MESSAGE = "NEW_MESSAGE",
+  UPDATED_MESSAGE = "UPDATED_MESSAGE",
+  DELETED_MESSAGE = "DELETED_MESSAGE"
+}
+
+const notifications = [];
+
 export const resolvers = {
   User: {
     chatRooms: async ({ id }) => {
@@ -22,6 +30,9 @@ export const resolvers = {
   Message: {
     author: async ({ authorId }) => {
       return await User.findById(authorId);
+    },
+    chatRoom: async ({ chatRoomId }) => {
+      return await ChatRoom.findById(chatRoomId);
     }
   },
 
@@ -32,7 +43,7 @@ export const resolvers = {
   },
 
   Query: {
-    currentUser: (_, args, context) => context.getUser(),
+    currentUser: (_, {}, context) => context.getUser(),
 
     listUsers: async () => {
       const users: any[] = await User.find();
@@ -55,6 +66,8 @@ export const resolvers = {
         return chatRoom.toObject();
       }
     },
+
+    getNotifications: async () => notifications,
   },
 
   Mutation: {
@@ -78,7 +91,7 @@ export const resolvers = {
       return user.toObject();     
     },
 
-    logout: (_, args, context) => context.logout(),
+    logout: (_, {}, context) => context.logout(),
 
     login: async (_, { input }, context) => {
       const { user } = await context.authenticate("graphql-local", {
@@ -88,7 +101,7 @@ export const resolvers = {
       return user;
     },
 
-    createMessage: async (_, { input }) => {
+    createMessage: async (_, { input }, context) => {
       const message = await Message.create({
         ...input,
         status: null,
@@ -100,10 +113,18 @@ export const resolvers = {
         onCreateMessage: message,
       });
 
+      pubsub.publish("newNotification", {
+        newNotification: {
+          type: Notifications.NEW_MESSAGE,
+          payload: JSON.stringify(message)
+        }
+      });
+
+  
       return message.toObject();
     },
 
-    updateMessage: async (_, { input }) => {
+    updateMessage: async (_, { input }, context) => {
       const message = await Message.findByIdAndUpdate(input.id,
         {
           content: input.content || "",
@@ -118,6 +139,16 @@ export const resolvers = {
       pubsub.publish("onUpdateMessage", {
         onUpdateMessage: message
       });
+
+      // pubsub.publish("newNotification", {
+      //   newNotification: {
+      //     label: input.status === MessageStatus.deleted
+      //       ? Notifications.DELETED_MESSAGE
+      //       : Notifications.UPDATED_MESSAGE,
+      //     senderId: context.getUser().id,
+      //     data: JSON.stringify(message)
+      //   }
+      // });
 
       return message.toObject();
     },
@@ -134,13 +165,17 @@ export const resolvers = {
           updatedAt: moment.utc().unix()
         });
       }
+
       return chatRoom.toObject();  
     },
   },
 
   Subscription: {
     onCreateMessage: {
-      subscribe: () => pubsub.asyncIterator("onCreateMessage")
+      subscribe: withFilter(
+        () => pubsub.asyncIterator("onCreateMessage"),
+        (payload, variables) => payload.onCreateMessage.chatRoomId === variables.chatRoomId
+      )
     },
 
     onUpdateMessage: {
@@ -149,5 +184,21 @@ export const resolvers = {
         (payload, variables) => payload.onUpdateMessage.id === variables.id
       )
     },
+
+    newNotification: {
+      // subscribe: () => pubsub.asyncIterator("newNotification"),
+      subscribe: withFilter(
+        () => pubsub.asyncIterator("newNotification"),
+        async (payload, variables) => {
+          const message = JSON.parse(payload.newNotification.payload);
+          console.log("message", message);
+          const chatRoom = await ChatRoom.findById(message.chatRoomId);
+          console.log("chatRoom", chatRoom);
+          return chatRoom.members
+            .some(memberId => memberId === variables.userId);
+        }
+      )
+    },
+
   },
 };

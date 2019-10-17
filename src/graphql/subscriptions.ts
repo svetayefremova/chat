@@ -6,10 +6,20 @@ export const ON_CREATE_MESSAGE = gql`
       id
       content
       authorId
-      chatRoomId
       author {
         id
         username
+      }
+      chatRoomId
+      chatRoom {
+        id
+        name
+        members
+        messages {
+          id
+          content
+        }
+        isGroupChat
       }
       status
     }
@@ -22,12 +32,31 @@ export const ON_UPDATE_MESSAGE = gql`
       id
       content
       authorId
-      chatRoomId
       author {
         id
         username
       }
+      chatRoomId
+      chatRoom {
+        id
+        name
+        members
+        messages {
+          id
+          content
+        }
+        isGroupChat
+      }
       status
+    }
+  }
+`;
+
+export const NEW_NOTIFICATION = gql`
+  subscription newNotification($userId: ID!) {
+    newNotification(userId: $userId) {
+      type
+      payload
     }
   }
 `;

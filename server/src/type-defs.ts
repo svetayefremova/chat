@@ -16,6 +16,7 @@ export const typeDefs = gql`
     authorId: ID!
     content: String!
     chatRoomId: ID!
+    chatRoom: ChatRoom
     createdAt: String
     updatedAt: String
     status: String
@@ -31,12 +32,18 @@ export const typeDefs = gql`
     updatedAt: String
   }
 
+  type Notification {
+    type: String
+    payload: String
+  }
+
   # the schema allows the following query:
   type Query {
     currentUser: User
     listUsers: [User]
     getUser(id: ID!): User
     getChatRoom(id: ID!): ChatRoom
+    getNotifications: [Notification]
   }
 
   # the schema allows the following mutation:
@@ -76,5 +83,6 @@ export const typeDefs = gql`
   type Subscription {
     onCreateMessage(chatRoomId: ID!): Message
     onUpdateMessage(id: ID!): Message
+    newNotification(userId: ID!): Notification
   }
 `;

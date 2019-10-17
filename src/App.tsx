@@ -12,7 +12,7 @@ import { StoreProvider, useStore } from "./stores/store";
 
 const AppRoutes = () => {
   const { data, loading } = useCurrentUserQuery();
-  const { setUserId } = useStore();
+  const { userId, setUserId, setCurrentChatId } = useStore();
 
   if (loading) {
     return <p>Loading...</p>;
@@ -21,7 +21,9 @@ const AppRoutes = () => {
   const currentUser = data && data.currentUser;
 
   if (!currentUser) {
+    // TODO create clear action in store for all items and move to logout
     setUserId(null);
+    setCurrentChatId(null);
     return (
       <>
         <Route exact path="/">
@@ -34,7 +36,9 @@ const AppRoutes = () => {
     );
   }
 
-  setUserId(currentUser.id);
+  if (!userId) {
+    setUserId(currentUser.id);
+  }
 
   return (
     <Route exact path="/">

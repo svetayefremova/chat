@@ -1,5 +1,6 @@
 import { observer } from "mobx-react";
 import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 import { ON_CREATE_MESSAGE, ON_UPDATE_MESSAGE } from "../graphql/subscriptions";
 import {
@@ -146,7 +147,6 @@ const Messages = ({ roomId }) => {
   const { loading, data, subscribeToMore } = useGetChatRoomQuery(roomId);
 
   useEffect(() => {
-    // TODO also update currentUser query to get all chatRooms
     subscribeToMore({
       document: ON_CREATE_MESSAGE,
       variables: { chatRoomId: roomId },
@@ -156,16 +156,19 @@ const Messages = ({ roomId }) => {
         }
 
         const newMessageItem = data.onCreateMessage;
-        const prevChatRoomMessages = prev.getChatRoom.messages.filter(
-          (message) => message.id !== data.onCreateMessage.id,
-        );
 
-        return Object.assign({}, prev, {
-          getChatRoom: {
-            ...prev.getChatRoom,
-            messages: [...prevChatRoomMessages, newMessageItem],
-          },
-        });
+        if (newMessageItem.chatRoomId === prev.getChatRoom.id) {
+          const prevChatRoomMessages = prev.getChatRoom.messages.filter(
+            (message) => message.id !== data.onCreateMessage.id,
+          );
+
+          return Object.assign({}, prev, {
+            getChatRoom: {
+              ...prev.getChatRoom,
+              messages: [...prevChatRoomMessages, newMessageItem],
+            },
+          });
+        }
       },
     });
   }, [subscribeToMore, roomId]);
@@ -190,7 +193,6 @@ const Messages = ({ roomId }) => {
 
 const ChatRoomMessages = observer(() => {
   const { currentChatId } = useStore();
-  console.log("currentChatId", currentChatId);
 
   // TODO should be another logic
   // maybe open first chat by default with bot user?
