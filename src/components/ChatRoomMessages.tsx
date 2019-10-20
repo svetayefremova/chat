@@ -1,6 +1,5 @@
 import { observer } from "mobx-react";
 import React, { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 
 import { ON_CREATE_MESSAGE, ON_UPDATE_MESSAGE } from "../graphql/subscriptions";
 import {

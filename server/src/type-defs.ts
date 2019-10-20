@@ -6,20 +6,20 @@ export const typeDefs = gql`
     username: String!
     password: String!
     chatRooms: [ChatRoom]
-    createdAt: String
-    updatedAt: String
+    createdAt: Int
+    updatedAt: Int
   }
 
   type Message {
     id: ID!
     author: User
     authorId: ID!
+    status: String
     content: String!
     chatRoomId: ID!
     chatRoom: ChatRoom
-    createdAt: String
-    updatedAt: String
-    status: String
+    createdAt: Int
+    updatedAt: Int
   }
 
   type ChatRoom {
@@ -28,8 +28,8 @@ export const typeDefs = gql`
     name: String
     members: [String!]!
     isGroupChat: Boolean
-    createdAt: String
-    updatedAt: String
+    createdAt: Int
+    updatedAt: Int
   }
 
   type Notification {

@@ -59,12 +59,12 @@ const Modal = ({ onClose, ...props }) => {
 const CreateChat = () => {
   const [isShowModal, setIsShowModal] = useState(false);
   const { userId, setCurrentChatId } = useStore();
-  const mutate = useCreateChatRoomMutation(userId);
+  const mutate = useCreateChatRoomMutation();
 
   async function onCreateChat(id) {
     const {
       data: { createChatRoom },
-    } = await mutate(userId, id);
+    } = await mutate([userId, id]);
     setCurrentChatId(createChatRoom.id);
     setIsShowModal(false);
   }

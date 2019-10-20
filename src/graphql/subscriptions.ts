@@ -20,8 +20,12 @@ export const ON_CREATE_MESSAGE = gql`
           content
         }
         isGroupChat
+        createdAt
+        updatedAt
       }
       status
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -46,8 +50,12 @@ export const ON_UPDATE_MESSAGE = gql`
           content
         }
         isGroupChat
+        createdAt
+        updatedAt
       }
       status
+      createdAt
+      updatedAt
     }
   }
 `;

@@ -12,8 +12,12 @@ export const CURRENT_USER = gql`
         messages {
           id
           content
+          createdAt
+          updatedAt
         }
         isGroupChat
+        createdAt
+        updatedAt
       }
     }
   }
@@ -31,8 +35,12 @@ export const GET_USER = gql`
         messages {
           id
           content
+          createdAt
+          updatedAt
         }
         isGroupChat
+        createdAt
+        updatedAt
       }
     }
   }
@@ -70,8 +78,12 @@ export const GET_CHATROOM = gql`
             content
           }
           isGroupChat
+          createdAt
+          updatedAt
         }
         status
+        createdAt
+        updatedAt
       }
     }
   }
@@ -80,7 +92,8 @@ export const GET_CHATROOM = gql`
 export const GET_NOTIFICATIONS = gql`
   query {
     getNotifications {
-      label
+      type
+      payload
     }
   }
 `;

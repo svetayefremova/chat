@@ -12,8 +12,12 @@ export const SIGNUP = gql`
         messages {
           id
           content
+          createdAt
+          updatedAt
         }
         isGroupChat
+        createdAt
+        updatedAt
       }
     }
   }
@@ -31,8 +35,12 @@ export const LOGIN = gql`
         messages {
           id
           content
+          createdAt
+          updatedAt
         }
         isGroupChat
+        createdAt
+        updatedAt
       }
     }
   }

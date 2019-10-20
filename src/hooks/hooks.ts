@@ -35,6 +35,7 @@ export interface IUpdateMessageInput {
 export interface ICreateChatRoomInput {
   members: string[];
   name: string;
+  isGroupChat: boolean;
 }
 
 // QUERIES
@@ -96,19 +97,22 @@ export const useLoginMutation = () => {
     });
 };
 
-export const useCreateChatRoomMutation = (id) => {
+export const useCreateChatRoomMutation = () => {
   const [createChatRoom] = useMutation(CREATE_CHATROOM, {
     refetchQueries() {
       return [{ query: CURRENT_USER }];
     },
   });
 
-  return (currentUserId, otherUserId) => {
+  return (users: string[]) => {
+    // TODO divide login for group chat
+    const members = users.sort();
     return createChatRoom({
       variables: {
         input: {
-          members: [currentUserId, otherUserId].sort(),
-          isGroupChat: false,
+          members,
+          name: users.length > 2 ? "Group Chat" : "", // name for group chats
+          isGroupChat: users.length > 2 ? true : false,
         },
       },
     });

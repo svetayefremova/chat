@@ -23,7 +23,7 @@ const notifications = [];
 export const resolvers = {
   User: {
     chatRooms: async ({ id }) => {
-      return await ChatRoom.find({ members: id });
+      return await ChatRoom.find({ members: id }).sort({"updatedAt": "desc"});
     }
   },
 
@@ -101,13 +101,22 @@ export const resolvers = {
       return user;
     },
 
-    createMessage: async (_, { input }, context) => {
+    createMessage: async (_, { input }) => {
       const message = await Message.create({
         ...input,
         status: null,
         createdAt: moment.utc().unix(),
         updatedAt: moment.utc().unix()
       });
+
+      await ChatRoom.findByIdAndUpdate(input.chatRoomId,
+        {
+          updatedAt: moment.utc().unix(),
+        }, {
+          upsert: true,
+          new: true
+        }
+      );
 
       pubsub.publish("onCreateMessage", {
         onCreateMessage: message,
@@ -124,7 +133,7 @@ export const resolvers = {
       return message.toObject();
     },
 
-    updateMessage: async (_, { input }, context) => {
+    updateMessage: async (_, { input }) => {
       const message = await Message.findByIdAndUpdate(input.id,
         {
           content: input.content || "",
@@ -139,16 +148,6 @@ export const resolvers = {
       pubsub.publish("onUpdateMessage", {
         onUpdateMessage: message
       });
-
-      // pubsub.publish("newNotification", {
-      //   newNotification: {
-      //     label: input.status === MessageStatus.deleted
-      //       ? Notifications.DELETED_MESSAGE
-      //       : Notifications.UPDATED_MESSAGE,
-      //     senderId: context.getUser().id,
-      //     data: JSON.stringify(message)
-      //   }
-      // });
 
       return message.toObject();
     },
@@ -185,15 +184,13 @@ export const resolvers = {
       )
     },
 
+    // rename to newDMNotification
     newNotification: {
-      // subscribe: () => pubsub.asyncIterator("newNotification"),
       subscribe: withFilter(
         () => pubsub.asyncIterator("newNotification"),
         async (payload, variables) => {
           const message = JSON.parse(payload.newNotification.payload);
-          console.log("message", message);
           const chatRoom = await ChatRoom.findById(message.chatRoomId);
-          console.log("chatRoom", chatRoom);
           return chatRoom.members
             .some(memberId => memberId === variables.userId);
         }
