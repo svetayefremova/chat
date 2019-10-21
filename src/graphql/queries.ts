@@ -89,6 +89,36 @@ export const GET_CHATROOM = gql`
   }
 `;
 
+export const GET_MESSAGES = gql`
+  query getMessages($chatRoomId: ID!, $first: Int, $skip: Int) {
+    getMessages(chatRoomId: $chatRoomId, first: $first, skip: $skip) {
+      id
+      content
+      author {
+        id
+        username
+      }
+      authorId
+      chatRoomId
+      chatRoom {
+        id
+        name
+        members
+        messages {
+          id
+          content
+        }
+        isGroupChat
+        createdAt
+        updatedAt
+      }
+      status
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
 export const GET_NOTIFICATIONS = gql`
   query {
     getNotifications {

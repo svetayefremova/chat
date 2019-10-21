@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { ON_CREATE_MESSAGE, ON_UPDATE_MESSAGE } from "../graphql/subscriptions";
 import {
   useCreateMessageSubscription,
-  useGetChatRoomQuery,
+  useGetMessagesQuery,
   useUpdateMessageMutation,
   useUpdateMessageSubscription,
 } from "../hooks/hooks";
@@ -13,6 +13,10 @@ import CreateMessage from "./CreateMessage";
 import UpdateMessage from "./UpdateMessage";
 
 const styles: any = {
+  container: {
+    display: "flex",
+    flexDirection: "column-reverse"
+  },
   messageContent: {
     marginTop: 20,
   },
@@ -143,51 +147,73 @@ const Message = ({
 const Messages = ({ roomId }) => {
   useCreateMessageSubscription();
   useUpdateMessageSubscription();
-  const { loading, data, subscribeToMore } = useGetChatRoomQuery(roomId);
+  const { loading, data, subscribeToMore, fetchMore } = useGetMessagesQuery(roomId);
 
   useEffect(() => {
     subscribeToMore({
       document: ON_CREATE_MESSAGE,
       variables: { chatRoomId: roomId },
       updateQuery: (prev, { subscriptionData: { data } }) => {
+        console.log('prev', prev, data);
         if (!data) {
           return prev;
         }
 
         const newMessageItem = data.onCreateMessage;
 
-        if (newMessageItem.chatRoomId === prev.getChatRoom.id) {
-          const prevChatRoomMessages = prev.getChatRoom.messages.filter(
+        if (newMessageItem.chatRoomId === prev.getMessages[0].chatRoomId) {
+          const prevMessages = prev.getMessages.filter(
             (message) => message.id !== data.onCreateMessage.id,
           );
 
           return Object.assign({}, prev, {
-            getChatRoom: {
-              ...prev.getChatRoom,
-              messages: [...prevChatRoomMessages, newMessageItem],
-            },
+            getMessages: [newMessageItem, ...prevMessages],
           });
         }
       },
     });
   }, [subscribeToMore, roomId]);
 
+  function onLoadMore() {
+    fetchMore({
+      variables: {
+        skip: data.getMessages.length
+      },
+      updateQuery: (prev: any, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
+
+        return Object.assign({}, prev, {
+          getMessages: [
+            ...prev.getMessages,
+            ...fetchMoreResult.getMessages
+          ]
+        });
+      }
+    })
+  }
+
   if (loading) {
     return <p>Loading...</p>;
   }
 
-  const chatRoom = data && data.getChatRoom;
-  const { messages } = chatRoom;
+  const messages = data && data.getMessages;
 
   if (!messages || !messages.length) {
     return <p>There are no messages yet</p>;
   }
 
-  return messages.map((message) => (
-    <div key={message.id} style={styles.messageContent}>
-      <Message message={message} subscribeToMore={subscribeToMore} />
-    </div>
-  ));
+  return <>
+      <button onClick={onLoadMore}>Load more</button>
+      <div style={styles.container}>
+        {
+            messages.map((message) => (
+            <div key={message.id} style={styles.messageContent}>
+              <Message message={message} subscribeToMore={subscribeToMore} />
+            </div>
+          ))
+        }
+      </div>
+    </>
 };
 
 const ChatRoomMessages = observer(() => {

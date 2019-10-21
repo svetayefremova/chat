@@ -43,6 +43,7 @@ export const typeDefs = gql`
     listUsers: [User]
     getUser(id: ID!): User
     getChatRoom(id: ID!): ChatRoom
+    getMessages(chatRoomId: ID!, skip: Int, first: Int): [Message]
     getNotifications: [Notification]
   }
 

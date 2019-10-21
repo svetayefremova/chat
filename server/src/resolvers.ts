@@ -67,6 +67,15 @@ export const resolvers = {
       }
     },
 
+    getMessages: async (_, { chatRoomId, first = 10, skip = 0 }) => {
+      const messages = await Message.find({ chatRoomId })
+        .sort({"createdAt": "desc"})
+        .limit(first)
+        .skip(skip);
+    
+      return messages.map(message => message.toObject());
+    },
+
     getNotifications: async () => notifications,
   },
 
