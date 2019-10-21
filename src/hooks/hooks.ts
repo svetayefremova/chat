@@ -11,10 +11,10 @@ import {
 import {
   CURRENT_USER,
   GET_CHATROOM,
+  GET_MESSAGES,
   GET_NOTIFICATIONS,
   GET_USER,
   LIST_USERS,
-  GET_MESSAGES
 } from "../graphql/queries";
 import {
   NEW_NOTIFICATION,
@@ -51,7 +51,9 @@ export const useGetChatRoomQuery = (roomId) =>
   useQuery(GET_CHATROOM, { variables: { id: roomId } });
 
 export const useGetMessagesQuery = (roomId) =>
-  useQuery(GET_MESSAGES, { variables: { chatRoomId: roomId, first: 20, skip: 0 } });
+  useQuery(GET_MESSAGES, {
+    variables: { chatRoomId: roomId, first: 20, skip: 0 },
+  });
 
 export const useGetNotificationsQuery = () => useQuery(GET_NOTIFICATIONS);
 
@@ -126,7 +128,12 @@ export const useCreateChatRoomMutation = () => {
 export const useCreateMessageMutation = (roomId) => {
   const [createMessage, { loading, error }] = useMutation(CREATE_MESSAGE, {
     refetchQueries() {
-      return [{ query: GET_MESSAGES, variables: { chatRoomId: roomId, first: 20, skip: 0 } }];
+      return [
+        {
+          query: GET_MESSAGES,
+          variables: { chatRoomId: roomId, first: 20, skip: 0 },
+        },
+      ];
     },
   });
 

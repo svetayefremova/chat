@@ -15,7 +15,7 @@ import UpdateMessage from "./UpdateMessage";
 const styles: any = {
   container: {
     display: "flex",
-    flexDirection: "column-reverse"
+    flexDirection: "column-reverse",
   },
   messageContent: {
     marginTop: 20,
@@ -147,14 +147,16 @@ const Message = ({
 const Messages = ({ roomId }) => {
   useCreateMessageSubscription();
   useUpdateMessageSubscription();
-  const { loading, data, subscribeToMore, fetchMore } = useGetMessagesQuery(roomId);
+  const { loading, data, subscribeToMore, fetchMore } = useGetMessagesQuery(
+    roomId,
+  );
 
   useEffect(() => {
     subscribeToMore({
       document: ON_CREATE_MESSAGE,
       variables: { chatRoomId: roomId },
       updateQuery: (prev, { subscriptionData: { data } }) => {
-        console.log('prev', prev, data);
+        console.log("prev", prev, data);
         if (!data) {
           return prev;
         }
@@ -177,19 +179,16 @@ const Messages = ({ roomId }) => {
   function onLoadMore() {
     fetchMore({
       variables: {
-        skip: data.getMessages.length
+        skip: data.getMessages.length,
       },
       updateQuery: (prev: any, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult) { return prev; }
 
         return Object.assign({}, prev, {
-          getMessages: [
-            ...prev.getMessages,
-            ...fetchMoreResult.getMessages
-          ]
+          getMessages: [...prev.getMessages, ...fetchMoreResult.getMessages],
         });
-      }
-    })
+      },
+    });
   }
 
   if (loading) {
@@ -202,18 +201,18 @@ const Messages = ({ roomId }) => {
     return <p>There are no messages yet</p>;
   }
 
-  return <>
+  return (
+    <>
       <button onClick={onLoadMore}>Load more</button>
       <div style={styles.container}>
-        {
-            messages.map((message) => (
-            <div key={message.id} style={styles.messageContent}>
-              <Message message={message} subscribeToMore={subscribeToMore} />
-            </div>
-          ))
-        }
+        {messages.map((message) => (
+          <div key={message.id} style={styles.messageContent}>
+            <Message message={message} subscribeToMore={subscribeToMore} />
+          </div>
+        ))}
       </div>
     </>
+  );
 };
 
 const ChatRoomMessages = observer(() => {
