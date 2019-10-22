@@ -8,6 +8,7 @@ import {
   useUpdateMessageMutation,
   useUpdateMessageSubscription,
 } from "../hooks/hooks";
+import useInfiniteScroll from "../hooks/useInfiniteScroll";
 import { useStore } from "../stores/store";
 import CreateMessage from "./CreateMessage";
 import UpdateMessage from "./UpdateMessage";
@@ -16,6 +17,14 @@ const styles: any = {
   container: {
     display: "flex",
     flexDirection: "column-reverse",
+    overflowY: "scroll",
+    maxHeight: 400,
+    overflow: "auto",
+  },
+  messages: {
+    display: "flex",
+    justifyContent: "flex-end",
+    flexDirection: "column",
   },
   messageContent: {
     marginTop: 20,
@@ -150,20 +159,23 @@ const Messages = ({ roomId }) => {
   const { loading, data, subscribeToMore, fetchMore } = useGetMessagesQuery(
     roomId,
   );
+  const { setIsFetching, handleScroll } = useInfiniteScroll(onLoadMore);
 
   useEffect(() => {
     subscribeToMore({
       document: ON_CREATE_MESSAGE,
       variables: { chatRoomId: roomId },
       updateQuery: (prev, { subscriptionData: { data } }) => {
-        console.log("prev", prev, data);
         if (!data) {
           return prev;
         }
 
         const newMessageItem = data.onCreateMessage;
 
-        if (newMessageItem.chatRoomId === prev.getMessages[0].chatRoomId) {
+        if (
+          !prev.getMessages.length ||
+          newMessageItem.chatRoomId === prev.getMessages[0].chatRoomId
+        ) {
           const prevMessages = prev.getMessages.filter(
             (message) => message.id !== data.onCreateMessage.id,
           );
@@ -182,7 +194,11 @@ const Messages = ({ roomId }) => {
         skip: data.getMessages.length,
       },
       updateQuery: (prev: any, { fetchMoreResult }) => {
-        if (!fetchMoreResult) { return prev; }
+        if (!fetchMoreResult) {
+          return prev;
+        }
+
+        setIsFetching(false);
 
         return Object.assign({}, prev, {
           getMessages: [...prev.getMessages, ...fetchMoreResult.getMessages],
@@ -202,8 +218,7 @@ const Messages = ({ roomId }) => {
   }
 
   return (
-    <>
-      <button onClick={onLoadMore}>Load more</button>
+    <div style={styles.messages} onScroll={(e) => handleScroll(e)}>
       <div style={styles.container}>
         {messages.map((message) => (
           <div key={message.id} style={styles.messageContent}>
@@ -211,7 +226,7 @@ const Messages = ({ roomId }) => {
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 };
 

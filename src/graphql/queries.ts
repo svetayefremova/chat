@@ -47,8 +47,8 @@ export const GET_USER = gql`
 `;
 
 export const LIST_USERS = gql`
-  query {
-    listUsers {
+  query listUsers($first: Int, $skip: Int) {
+    listUsers(first: $first, skip: $skip) {
       id
       username
     }
@@ -115,15 +115,6 @@ export const GET_MESSAGES = gql`
       status
       createdAt
       updatedAt
-    }
-  }
-`;
-
-export const GET_NOTIFICATIONS = gql`
-  query {
-    getNotifications {
-      type
-      payload
     }
   }
 `;

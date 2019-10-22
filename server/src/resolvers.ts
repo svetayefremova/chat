@@ -45,8 +45,10 @@ export const resolvers = {
   Query: {
     currentUser: (_, {}, context) => context.getUser(),
 
-    listUsers: async () => {
-      const users: any[] = await User.find();
+    listUsers: async (_, { first, skip }) => {
+      const users: any[] = await User.find()
+        .limit(first)
+        .skip(skip);
 
       return users.map(user => user.toObject());
     },
@@ -67,7 +69,7 @@ export const resolvers = {
       }
     },
 
-    getMessages: async (_, { chatRoomId, first = 10, skip = 0 }) => {
+    getMessages: async (_, { chatRoomId, first, skip }) => {
       const messages = await Message.find({ chatRoomId })
         .sort({"createdAt": "desc"})
         .limit(first)

@@ -40,7 +40,7 @@ export const typeDefs = gql`
   # the schema allows the following query:
   type Query {
     currentUser: User
-    listUsers: [User]
+    listUsers(skip: Int, first: Int): [User]
     getUser(id: ID!): User
     getChatRoom(id: ID!): ChatRoom
     getMessages(chatRoomId: ID!, skip: Int, first: Int): [Message]

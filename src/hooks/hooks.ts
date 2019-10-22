@@ -12,7 +12,6 @@ import {
   CURRENT_USER,
   GET_CHATROOM,
   GET_MESSAGES,
-  GET_NOTIFICATIONS,
   GET_USER,
   LIST_USERS,
 } from "../graphql/queries";
@@ -45,7 +44,10 @@ export const useCurrentUserQuery = () => useQuery(CURRENT_USER);
 export const useGetUserQuery = (id) =>
   useQuery(GET_USER, { variables: { id } });
 
-export const useListUsersQuery = () => useQuery(LIST_USERS);
+export const useListUsersQuery = () =>
+  useQuery(LIST_USERS, {
+    variables: { first: 20, skip: 0 },
+  });
 
 export const useGetChatRoomQuery = (roomId) =>
   useQuery(GET_CHATROOM, { variables: { id: roomId } });
@@ -54,8 +56,6 @@ export const useGetMessagesQuery = (roomId) =>
   useQuery(GET_MESSAGES, {
     variables: { chatRoomId: roomId, first: 20, skip: 0 },
   });
-
-export const useGetNotificationsQuery = () => useQuery(GET_NOTIFICATIONS);
 
 // MUTATIONS
 export const useSignUpMutation = () => {
