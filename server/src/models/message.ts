@@ -7,6 +7,7 @@ export interface IMessage extends Document {
   content: string;
   chatRoomId: string;
   status: string;
+  isRead: boolean;
   createdAt: number;
   updatedAt: number;
 }
@@ -17,6 +18,7 @@ const messageSchema: Schema = new Schema({
   content: { type: String },
   chatRoomId: { type: String },
   status: { type: String },
+  isRead: { type: Boolean },
   createdAt: { type: Number },
   updatedAt: { type: Number }
 });

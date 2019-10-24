@@ -1,13 +1,16 @@
 import { PubSub, withFilter } from "apollo-server";
 import moment from "moment";
+import GQLMongoQuery from '@konfy/graphql-mongo-query';
 
 import ChatRoom from "./models/chatRoom";
 import Message from "./models/message";
 import User from "./models/user";
 
 const pubsub = new PubSub();
+const parser = new GQLMongoQuery()
 
 enum MessageStatus {
+  sent = "sent",
   updated = "updated",
   deleted = "deleted"
 }
@@ -69,8 +72,9 @@ export const resolvers = {
       }
     },
 
-    getMessages: async (_, { chatRoomId, first, skip }) => {
-      const messages = await Message.find({ chatRoomId })
+    getMessages: async (_, { chatRoomId, filter, first, skip }) => {
+      const filters = parser.buildFilters(filter)
+      const messages = await Message.find({ chatRoomId, ...filters })
         .sort({"createdAt": "desc"})
         .limit(first)
         .skip(skip);
@@ -115,7 +119,8 @@ export const resolvers = {
     createMessage: async (_, { input }) => {
       const message = await Message.create({
         ...input,
-        status: null,
+        isRead: false,
+        status: MessageStatus.sent,
         createdAt: moment.utc().unix(),
         updatedAt: moment.utc().unix()
       });
@@ -140,6 +145,7 @@ export const resolvers = {
         }
       });
 
+      console.log(message);
   
       return message.toObject();
     },
@@ -178,6 +184,15 @@ export const resolvers = {
 
       return chatRoom.toObject();  
     },
+
+    markAsRead: async (_, { input: { chatRoomId, userId } }) => {
+      const messages = await Message.updateMany(
+        { chatRoomId, authorId: { $ne: userId } },
+        { isRead: true }
+      )
+
+      console.log('messages', messages)
+    }
   },
 
   Subscription: {

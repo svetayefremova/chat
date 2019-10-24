@@ -1,53 +1,33 @@
 import gql from "graphql-tag";
 
 export const typeDefs = gql`
-  type User {
-    id: ID!
-    username: String!
-    password: String!
-    chatRooms: [ChatRoom]
-    createdAt: Int
-    updatedAt: Int
+  enum MessageStatus {
+    sent
+    deleted
+    updated
   }
 
-  type Message {
-    id: ID!
-    author: User
-    authorId: ID!
-    status: String
-    content: String!
-    chatRoomId: ID!
-    chatRoom: ChatRoom
-    createdAt: Int
-    updatedAt: Int
+
+  # searchable inputs 
+  input BooleanFilterInput {
+    _EQ: Boolean
+    _NE: Boolean
   }
 
-  type ChatRoom {
-    id: ID!
-    messages: [Message]
-    name: String
-    members: [String!]!
-    isGroupChat: Boolean
-    createdAt: Int
-    updatedAt: Int
+  input StringFilterInput {
+    _EQ: String
+    _NE: String
+    _IN: [String]
   }
 
-  type Notification {
-    type: String
-    payload: String
+  # filters inputs
+  input MessageFilter {
+    isRead: BooleanFilterInput
+    authorId: StringFilterInput
   }
 
-  # the schema allows the following query:
-  type Query {
-    currentUser: User
-    listUsers(skip: Int, first: Int): [User]
-    getUser(id: ID!): User
-    getChatRoom(id: ID!): ChatRoom
-    getMessages(chatRoomId: ID!, skip: Int, first: Int): [Message]
-    getNotifications: [Notification]
-  }
 
-  # the schema allows the following mutation:
+  # mutation inputs
   input CreateMessageInput {
     chatRoomId: ID!
     authorId: ID!
@@ -71,6 +51,63 @@ export const typeDefs = gql`
     password: String!
   }
 
+  input MarkAsReadInput {
+    chatRoomId: ID!
+    userId: ID!
+  }
+
+  
+  # model types
+  type User {
+    id: ID!
+    username: String!
+    password: String!
+    chatRooms: [ChatRoom]
+    createdAt: Int
+    updatedAt: Int
+  }
+
+  type Message {
+    id: ID!
+    author: User
+    authorId: ID!
+    status: MessageStatus
+    isRead: Boolean
+    content: String!
+    chatRoomId: ID!
+    chatRoom: ChatRoom
+    createdAt: Int
+    updatedAt: Int
+  }
+
+  type ChatRoom {
+    id: ID!
+    messages: [Message]
+    name: String
+    members: [String!]!
+    isGroupChat: Boolean
+    createdAt: Int
+    updatedAt: Int
+  }
+
+  type Notification {
+    type: String
+    payload: String
+  }
+
+
+  # the schema allows the following query:
+  type Query {
+    currentUser: User
+    listUsers(skip: Int, first: Int): [User]
+    getUser(id: ID!): User
+    getChatRoom(id: ID!): ChatRoom
+    getMessages(chatRoomId: ID!, skip: Int, first: Int, filter: MessageFilter): [Message]
+    getNotifications: [Notification]
+  }
+
+
+  # the schema allows the following mutation:
   type Mutation {
     signup(input: AuthInput): User
     login(input: AuthInput): User
@@ -78,7 +115,9 @@ export const typeDefs = gql`
     createMessage(input: CreateMessageInput!): Message
     updateMessage(input: UpdateMessageInput!): Message
     createChatRoom(input: CreateChatRoomInput!): ChatRoom
+    markAsRead(input: MarkAsReadInput!): [Message]
   }
+
 
   # the schema allows the following subscription:
   type Subscription {

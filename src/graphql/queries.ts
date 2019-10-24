@@ -12,6 +12,9 @@ export const CURRENT_USER = gql`
         messages {
           id
           content
+          isRead
+          authorId
+          chatRoomId
           createdAt
           updatedAt
         }
@@ -35,6 +38,9 @@ export const GET_USER = gql`
         messages {
           id
           content
+          isRead
+          authorId
+          chatRoomId
           createdAt
           updatedAt
         }
@@ -55,43 +61,19 @@ export const LIST_USERS = gql`
   }
 `;
 
+// TODO maybe not need
 export const GET_CHATROOM = gql`
   query getChatRoom($id: ID!) {
     getChatRoom(id: $id) {
       id
       name
-      messages {
-        id
-        content
-        author {
-          id
-          username
-        }
-        authorId
-        chatRoomId
-        chatRoom {
-          id
-          name
-          members
-          messages {
-            id
-            content
-          }
-          isGroupChat
-          createdAt
-          updatedAt
-        }
-        status
-        createdAt
-        updatedAt
-      }
     }
   }
 `;
 
 export const GET_MESSAGES = gql`
-  query getMessages($chatRoomId: ID!, $first: Int, $skip: Int) {
-    getMessages(chatRoomId: $chatRoomId, first: $first, skip: $skip) {
+  query getMessages($chatRoomId: ID!, $first: Int, $skip: Int, $filter: MessageFilter) {
+    getMessages(chatRoomId: $chatRoomId, first: $first, skip: $skip, filter: $filter) {
       id
       content
       author {
@@ -113,6 +95,7 @@ export const GET_MESSAGES = gql`
         updatedAt
       }
       status
+      isRead
       createdAt
       updatedAt
     }

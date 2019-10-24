@@ -6,20 +6,19 @@ import { useStore } from "../stores/store";
 import { useNewNotificationSubscription } from "../hooks/hooks";
 
 const Notification = () => {
-  const { userId, setChatsWithNotifications } = useStore();
+  const { userId } = useStore();
   const { data } = useNewNotificationSubscription(userId);
 
   useEffect(() => {
     console.log("newNotification", data);
     if (data) {
       const { payload } = data.newNotification;
-      const { content, authorId, chatRoomId } = JSON.parse(payload);
+      const { content, authorId } = JSON.parse(payload);
       if (authorId !== userId) {
-        setChatsWithNotifications(chatRoomId);
         toast(content);
       }
     }
-  }, [data, userId, setChatsWithNotifications]);
+  }, [data, userId]);
 
   return <ToastContainer />;
 };

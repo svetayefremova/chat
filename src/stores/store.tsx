@@ -6,9 +6,6 @@ const storeContext = createContext(null);
 const createStore = () => ({
   userId: null,
   currentChatId: null,
-  chatsWithNotifications: new Map(
-    JSON.parse(localStorage.getItem("chatsWithNotifications")),
-  ),
 
   setUserId(id: string) {
     console.log("setUserId", id);
@@ -17,31 +14,6 @@ const createStore = () => ({
 
   setCurrentChatId(id: string) {
     this.currentChatId = id;
-  },
-
-  setChatsWithNotifications(chatRoomId: string) {
-    this.chatsWithNotifications.set(
-      chatRoomId,
-      this.chatsWithNotifications.has(chatRoomId)
-        ? this.chatsWithNotifications.get(chatRoomId) + 1
-        : 1,
-    );
-
-    localStorage.setItem(
-      "chatsWithNotifications",
-      JSON.stringify(Array.from(this.chatsWithNotifications.entries())),
-    );
-
-    console.log("setChatNotifications", this.chatsWithNotifications);
-  },
-
-  clearChatNotifications(chatRoomId: string) {
-    this.chatsWithNotifications.delete(chatRoomId);
-
-    localStorage.setItem(
-      "chatsWithNotifications",
-      JSON.stringify(Array.from(this.chatsWithNotifications.entries())),
-    );
   },
 });
 

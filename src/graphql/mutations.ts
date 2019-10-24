@@ -12,6 +12,7 @@ export const SIGNUP = gql`
         messages {
           id
           content
+          isRead
           createdAt
           updatedAt
         }
@@ -35,6 +36,7 @@ export const LOGIN = gql`
         messages {
           id
           content
+          isRead
           createdAt
           updatedAt
         }
@@ -80,6 +82,18 @@ export const CREATE_CHATROOM = gql`
   mutation createChatRoom($input: CreateChatRoomInput!) {
     createChatRoom(input: $input) {
       id
+    }
+  }
+`;
+
+export const MARK_AS_READ = gql`
+  mutation markAsRead($input: MarkAsReadInput!) {
+    markAsRead(input: $input) {
+      id
+      content
+      isRead
+      createdAt
+      updatedAt
     }
   }
 `;

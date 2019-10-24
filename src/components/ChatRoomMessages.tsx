@@ -17,8 +17,7 @@ const styles: any = {
   container: {
     display: "flex",
     flexDirection: "column-reverse",
-    overflowY: "scroll",
-    maxHeight: 400,
+    maxHeight: 300,
     overflow: "auto",
   },
   messages: {
@@ -85,11 +84,13 @@ const Message = ({
   const [mutate] = useUpdateMessageMutation();
 
   useEffect(() => {
-    subscribeToMore({
+    const unsubscribe = subscribeToMore({
       document: ON_UPDATE_MESSAGE,
       variables: { id },
       updateQuery: (prev) => prev,
     });
+
+    return () => unsubscribe();
   }, [subscribeToMore, id]);
 
   function onStartEditMessage(id: string) {
@@ -157,7 +158,7 @@ const Messages = ({ roomId }) => {
   useCreateMessageSubscription();
   useUpdateMessageSubscription();
   const { loading, data, subscribeToMore, fetchMore } = useGetMessagesQuery(
-    roomId,
+    roomId
   );
   const { setIsFetching, handleScroll } = useInfiniteScroll(onLoadMore);
 

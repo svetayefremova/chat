@@ -7,6 +7,7 @@ import {
   LOGOUT,
   SIGNUP,
   UPDATE_MESSAGE,
+  MARK_AS_READ
 } from "../graphql/mutations";
 import {
   CURRENT_USER,
@@ -38,6 +39,11 @@ export interface ICreateChatRoomInput {
   isGroupChat: boolean;
 }
 
+export interface IMarkAsReadInput {
+  chatRoomId: string;
+  userId: string
+}
+
 // QUERIES
 export const useCurrentUserQuery = () => useQuery(CURRENT_USER);
 
@@ -52,9 +58,9 @@ export const useListUsersQuery = () =>
 export const useGetChatRoomQuery = (roomId) =>
   useQuery(GET_CHATROOM, { variables: { id: roomId } });
 
-export const useGetMessagesQuery = (roomId) =>
+export const useGetMessagesQuery = (roomId, filter = null) =>
   useQuery(GET_MESSAGES, {
-    variables: { chatRoomId: roomId, first: 20, skip: 0 },
+    variables: { chatRoomId: roomId, first: 20, skip: 0, filter },
   });
 
 // MUTATIONS
@@ -153,6 +159,33 @@ export const useUpdateMessageMutation = () => {
   // TODO types definition
   const mutation: any = [
     (input: IUpdateMessageInput) => updateMessage({ variables: { input } }),
+    loading,
+    error,
+  ];
+
+  return mutation;
+};
+
+export const useMarkAsReadMutation = (roomId, filter) => {
+  const [markAsRead, { loading, error }] = useMutation(MARK_AS_READ, {
+    refetchQueries() {
+      return [
+        {
+          query: GET_MESSAGES,
+          variables: {
+            chatRoomId: roomId,
+            first: 20,
+            skip: 0,
+            filter
+          },
+        },
+      ];
+    },
+  });
+
+  // TODO types definition
+  const mutation: any = [
+    (input: IMarkAsReadInput) => markAsRead({ variables: { input } }),
     loading,
     error,
   ];

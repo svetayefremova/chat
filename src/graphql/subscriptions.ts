@@ -18,6 +18,7 @@ export const ON_CREATE_MESSAGE = gql`
         messages {
           id
           content
+          isRead
         }
         isGroupChat
         createdAt
@@ -54,6 +55,7 @@ export const ON_UPDATE_MESSAGE = gql`
         updatedAt
       }
       status
+      isRead
       createdAt
       updatedAt
     }
