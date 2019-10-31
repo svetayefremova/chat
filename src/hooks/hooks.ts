@@ -5,9 +5,9 @@ import {
   CREATE_MESSAGE,
   LOGIN,
   LOGOUT,
+  MARK_AS_READ,
   SIGNUP,
   UPDATE_MESSAGE,
-  MARK_AS_READ
 } from "../graphql/mutations";
 import {
   CURRENT_USER,
@@ -41,7 +41,7 @@ export interface ICreateChatRoomInput {
 
 export interface IMarkAsReadInput {
   chatRoomId: string;
-  userId: string
+  userId: string;
 }
 
 // QUERIES
@@ -176,7 +176,7 @@ export const useMarkAsReadMutation = (roomId, filter) => {
             chatRoomId: roomId,
             first: 20,
             skip: 0,
-            filter
+            filter,
           },
         },
       ];

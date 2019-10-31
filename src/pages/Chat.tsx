@@ -1,41 +1,41 @@
-import React from "react";
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
 
 import ChatRoomMessages from "../components/ChatRoomMessages";
 import ChatRooms from "../components/ChatRooms";
 import Layout from "../components/Layout";
 import Notification from "../components/Notification";
-
-const styles: any = {
-  chat: {
-    border: "1px solid #DDD",
-    display: "flex",
-    flexDirection: "row",
-  },
-  leftContainer: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: "#ffeeff",
-  },
-  rightContainer: {
-    padding: 16,
-    flex: 4,
-  },
-};
+import { Row, theme } from "../theme";
 
 const Chat = () => {
   return (
     <Layout>
-      <div style={styles.chat}>
-        <div style={styles.leftContainer}>
+      <Row css={styles.row}>
+        <div css={styles.leftContainer}>
           <ChatRooms />
         </div>
-        <div style={styles.rightContainer}>
+        <div css={styles.rightContainer}>
           <ChatRoomMessages />
         </div>
-      </div>
+      </Row>
       <Notification />
     </Layout>
   );
+};
+
+const styles = {
+  row: css`
+    width: 100%;
+  `,
+  leftContainer: css`
+    flex: 1;
+    background-color: ${theme.colors.primary};
+    box-shadow: 10px 0 5px -2px ${theme.colors.shadow};
+  `,
+  rightContainer: css`
+    flex: 4;
+    padding: 1rem;
+  `,
 };
 
 export default Chat;

@@ -72,8 +72,18 @@ export const GET_CHATROOM = gql`
 `;
 
 export const GET_MESSAGES = gql`
-  query getMessages($chatRoomId: ID!, $first: Int, $skip: Int, $filter: MessageFilter) {
-    getMessages(chatRoomId: $chatRoomId, first: $first, skip: $skip, filter: $filter) {
+  query getMessages(
+    $chatRoomId: ID!
+    $first: Int
+    $skip: Int
+    $filter: MessageFilter
+  ) {
+    getMessages(
+      chatRoomId: $chatRoomId
+      first: $first
+      skip: $skip
+      filter: $filter
+    ) {
       id
       content
       author {

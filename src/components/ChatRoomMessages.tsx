@@ -1,5 +1,8 @@
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
 import { observer } from "mobx-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { IoMdClose, IoMdCreate } from "react-icons/io";
 
 import { ON_CREATE_MESSAGE, ON_UPDATE_MESSAGE } from "../graphql/subscriptions";
 import {
@@ -10,69 +13,26 @@ import {
 } from "../hooks/hooks";
 import useInfiniteScroll from "../hooks/useInfiniteScroll";
 import { useStore } from "../stores/store";
+import {
+  Center,
+  Column,
+  MessageContent,
+  MessageItem,
+  Row,
+  ScrollContainer,
+  Text,
+  theme,
+} from "../theme";
 import CreateMessage from "./CreateMessage";
 import UpdateMessage from "./UpdateMessage";
+import UserAvatar from "./UserAvatar";
 
-const styles: any = {
-  container: {
-    display: "flex",
-    flexDirection: "column-reverse",
-    maxHeight: 300,
-    overflow: "auto",
-  },
-  messages: {
-    display: "flex",
-    justifyContent: "flex-end",
-    flexDirection: "column",
-  },
-  messageContent: {
-    marginTop: 20,
-  },
-  messageItem: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    backgroundColor: "lightyellow",
-    paddingLeft: 20,
-    paddingRight: 20,
-  },
-  messageItemUser: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    backgroundColor: "lightgray",
-    paddingLeft: 20,
-    paddingRight: 20,
-  },
-  editButton: {
-    marginLeft: 10,
-    border: 0,
-    backgroundColor: "none",
-    height: 28,
-  },
-  updateInput: {
-    marginTop: 20,
-    display: "flex",
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  typeInput: {
-    marginTop: 20,
-    padding: 20,
-    backgroundColor: "#ffeeff",
-    display: "flex",
-    flex: 1,
-    justifyContent: "center",
-  },
-  input: {
-    height: 20,
-    padding: 12,
-    width: "100%",
-  },
-};
 // TODO split code into components
+enum MessageStatus {
+  sent = "sent",
+  updated = "updated",
+  deleted = "deleted",
+}
 
 const Message = ({
   message: { id, content, author, authorId, status },
@@ -105,52 +65,77 @@ const Message = ({
 
   if (authorId !== userId) {
     return (
-      <div style={styles.messageItem}>
-        <p style={styles.message}>
-          {author.username}: {content}
-        </p>
-      </div>
-    );
-  }
-
-  if (status === "deleted") {
-    return (
-      <div style={styles.messageItemUser}>
-        <p>Deleted</p>
-      </div>
+      <MessageItem align="flex-start">
+        <Text paddingVertical="1rem" paddingHorizontal="2.8rem">
+          {author.username}
+        </Text>
+        <Row>
+          <UserAvatar username={author.username} />
+          <MessageContent backgroundColor={theme.colors.primary}>
+            <Text light>
+              {status === MessageStatus.deleted ? "Deleted" : content}
+            </Text>
+          </MessageContent>
+        </Row>
+      </MessageItem>
     );
   }
 
   return (
-    <div key={id}>
+    <>
       {isEditMode && selectedMessageId === id ? (
         <UpdateMessage
           message={{ id, content }}
           onClose={() => onFinishEditMessage()}
         />
       ) : (
-        <div
-          style={styles.messageItemUser}
+        <MessageItem
+          align="flex-end"
+          key={id}
           onDoubleClick={() => onStartEditMessage(id)}
         >
-          <p style={styles.message}>
-            {author.username}: {content}
-          </p>
-          <button
-            onClick={() => onStartEditMessage(id)}
-            style={styles.editButton}
+          <Text paddingVertical="1rem" paddingHorizontal="2.8rem">
+            {author.username}
+          </Text>
+          <Row
+            css={css`
+              justify-content: flex-end;
+            `}
           >
-            Edit
-          </button>
-          <button
-            onClick={() => mutate({ id, status: "deleted" })}
-            style={styles.editButton}
-          >
-            X
-          </button>
-        </div>
+            <MessageContent backgroundColor="white">
+              <Text>
+                {status === MessageStatus.deleted ? "Deleted" : content}
+              </Text>
+              {status !== MessageStatus.deleted && (
+                <Column align="center" justify="flex-start">
+                  <button
+                    onClick={() => onStartEditMessage(id)}
+                    css={styles.editButton}
+                  >
+                    <IoMdCreate
+                      color={theme.colors.baseFontColor}
+                      size={theme.fonts.iconSizeSmall}
+                    />
+                  </button>
+                  <button
+                    onClick={() =>
+                      mutate({ id, status: MessageStatus.deleted })
+                    }
+                    css={styles.editButton}
+                  >
+                    <IoMdClose
+                      color={theme.colors.baseFontColor}
+                      size={theme.fonts.iconSizeSmall}
+                    />
+                  </button>
+                </Column>
+              )}
+            </MessageContent>
+            <UserAvatar username={author.username} />
+          </Row>
+        </MessageItem>
       )}
-    </div>
+    </>
   );
 };
 
@@ -158,7 +143,7 @@ const Messages = ({ roomId }) => {
   useCreateMessageSubscription();
   useUpdateMessageSubscription();
   const { loading, data, subscribeToMore, fetchMore } = useGetMessagesQuery(
-    roomId
+    roomId,
   );
   const { setIsFetching, handleScroll } = useInfiniteScroll(onLoadMore);
 
@@ -209,25 +194,30 @@ const Messages = ({ roomId }) => {
   }
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <Text>Loading...</Text>;
   }
 
   const messages = data && data.getMessages;
 
   if (!messages || !messages.length) {
-    return <p>There are no messages yet</p>;
+    return (
+      <Center>
+        <Text>There are no messages yet</Text>
+      </Center>
+    );
   }
 
   return (
-    <div style={styles.messages} onScroll={(e) => handleScroll(e)}>
-      <div style={styles.container}>
-        {messages.map((message) => (
-          <div key={message.id} style={styles.messageContent}>
-            <Message message={message} subscribeToMore={subscribeToMore} />
-          </div>
-        ))}
-      </div>
-    </div>
+    <ScrollContainer
+      css={styles.messagesContainer}
+      onScroll={(e) => handleScroll(e)}
+    >
+      {messages.map((message) => (
+        <div key={message.id} css={styles.messageContent}>
+          <Message message={message} subscribeToMore={subscribeToMore} />
+        </div>
+      ))}
+    </ScrollContainer>
   );
 };
 
@@ -237,16 +227,70 @@ const ChatRoomMessages = observer(() => {
   // TODO should be another logic
   // maybe open first chat by default with bot user?
   if (!currentChatId) {
-    return <p>Start to chat with somebody</p>;
+    return (
+      <Center css={styles.emptyContainer}>
+        <Text>Start to chat with somebody</Text>
+      </Center>
+    );
   }
 
   return (
-    <div>
-      <p>Chat: {currentChatId}</p>
-      <Messages roomId={currentChatId} />
+    <Center>
+      <Text>Chat: {currentChatId}</Text>
+      <div css={styles.container}>
+        <Messages roomId={currentChatId} />
+      </div>
       <CreateMessage roomId={currentChatId} />
-    </div>
+    </Center>
   );
 });
+
+const styles = {
+  container: css`
+    height: calc(100vh - 190px);
+    width: 100%;
+  `,
+  emptyContainer: css`
+    height: 100%;
+  `,
+  messagesContainer: css`
+    height: 100%;
+    display: flex;
+    flex-direction: column-reverse;
+  `,
+  messages: css`
+    display: flex;
+    justify-content: flex-end;
+    flex-direction: column;
+  `,
+  messageContent: css`
+    display: flex;
+    align-self: stretch;
+  `,
+  editButton: css`
+    margin-left: 0.6rem;
+    border: 0;
+    height: 1.5rem;
+  `,
+  updateInput: css`
+    margin-top: 1rem;
+    display: flex;
+    flex: 1;
+    justify-content: flex-end;
+  `,
+  typeInput: css`
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: ${theme.colors.primary};
+    display: flex;
+    flex: 1;
+    justify-content: center;
+  `,
+  input: css`
+    height: 1.1rem;
+    padding: 0.8rem;
+    width: 100%;
+  `,
+};
 
 export default ChatRoomMessages;

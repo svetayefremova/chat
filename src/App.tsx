@@ -1,4 +1,7 @@
 import { ApolloProvider } from "@apollo/react-hooks";
+import { css, Global } from "@emotion/core";
+import { ThemeProvider } from "emotion-theming";
+import normalize from "normalize.css";
 import React from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
@@ -9,6 +12,7 @@ import Login from "./pages/Login";
 import NoMatch from "./pages/NoMatch";
 import Signup from "./pages/Signup";
 import { StoreProvider, useStore } from "./stores/store";
+import { theme } from "./theme";
 
 const AppRoutes = () => {
   const { data, loading } = useCurrentUserQuery();
@@ -49,18 +53,36 @@ const AppRoutes = () => {
 
 const App = () => {
   return (
-    <StoreProvider>
-      <ApolloProvider client={apolloClient}>
-        <Router>
-          <Switch>
-            <AppRoutes />
-            <Route path="*">
-              <NoMatch />
-            </Route>
-          </Switch>
-        </Router>
-      </ApolloProvider>
-    </StoreProvider>
+    <ThemeProvider theme={theme}>
+      <Global
+        styles={css`
+          ${normalize}
+          body {
+            background-color: ${theme.colors.background};
+            overflow: hidden;
+          }
+          p {
+            margin: 0;
+          }
+          ul {
+            list-style-type: none;
+            padding: 0;
+          }
+        `}
+      />
+      <StoreProvider>
+        <ApolloProvider client={apolloClient}>
+          <Router>
+            <Switch>
+              <AppRoutes />
+              <Route path="*">
+                <NoMatch />
+              </Route>
+            </Switch>
+          </Router>
+        </ApolloProvider>
+      </StoreProvider>
+    </ThemeProvider>
   );
 };
 

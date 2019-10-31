@@ -1,13 +1,13 @@
+import GQLMongoQuery from "@konfy/graphql-mongo-query";
 import { PubSub, withFilter } from "apollo-server";
 import moment from "moment";
-import GQLMongoQuery from '@konfy/graphql-mongo-query';
 
 import ChatRoom from "./models/chatRoom";
 import Message from "./models/message";
 import User from "./models/user";
 
 const pubsub = new PubSub();
-const parser = new GQLMongoQuery()
+const parser = new GQLMongoQuery();
 
 enum MessageStatus {
   sent = "sent",
@@ -73,7 +73,7 @@ export const resolvers = {
     },
 
     getMessages: async (_, { chatRoomId, filter, first, skip }) => {
-      const filters = parser.buildFilters(filter)
+      const filters = parser.buildFilters(filter);
       const messages = await Message.find({ chatRoomId, ...filters })
         .sort({"createdAt": "desc"})
         .limit(first)
@@ -189,9 +189,9 @@ export const resolvers = {
       const messages = await Message.updateMany(
         { chatRoomId, authorId: { $ne: userId } },
         { isRead: true }
-      )
+      );
 
-      console.log('messages', messages)
+      console.log("messages", messages);
     }
   },
 

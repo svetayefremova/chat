@@ -4,7 +4,9 @@ const useInfiniteScroll = (loadMore) => {
   const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
-    if (!isFetching) { return; }
+    if (!isFetching) {
+      return;
+    }
     loadMore();
   }, [isFetching, loadMore]);
 

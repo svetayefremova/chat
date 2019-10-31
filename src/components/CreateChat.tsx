@@ -24,9 +24,11 @@ const ListUsers = ({ onCreateChat, isFetching, stopFetching }) => {
   const { userId } = useStore();
 
   useEffect(() => {
-    if (!isFetching) { return; }
+    if (!isFetching) {
+      return;
+    }
     loadMoreItems();
-  }, [isFetching]);
+  }, [isFetching, loadMoreItems]);
 
   function loadMoreItems() {
     fetchMore({
