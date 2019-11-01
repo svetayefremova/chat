@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
 import { observer } from "mobx-react";
-import { useEffect, useState, useRef  } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IoMdClose, IoMdCreate, IoMdMore } from "react-icons/io";
 
 import { ON_CREATE_MESSAGE, ON_UPDATE_MESSAGE } from "../graphql/subscriptions";
@@ -14,15 +14,15 @@ import {
 import useInfiniteScroll from "../hooks/useInfiniteScroll";
 import { useStore } from "../stores/store";
 import {
+  ButtonLink,
   Center,
   Column,
+  IconButton,
   MessageContent,
   MessageItem,
   Row,
   ScrollContainer,
   Text,
-  IconButton,
-  ButtonLink,
   theme,
 } from "../theme";
 import CreateMessage from "./CreateMessage";
@@ -40,11 +40,11 @@ const ActionButtons = ({ onEditMessage, onDeleteMessage }) => {
   const [isShowMenu, setIsShowMenu] = useState(false);
 
   function onMouseEnter() {
-    setIsShowMenu(true)
+    setIsShowMenu(true);
   }
 
   function onMouseLeave() {
-    setIsShowMenu(false)
+    setIsShowMenu(false);
   }
 
   return (
@@ -54,27 +54,20 @@ const ActionButtons = ({ onEditMessage, onDeleteMessage }) => {
       onMouseLeave={() => onMouseLeave()}
     >
       <IconButton>
-        <IoMdMore size={theme.fonts.iconSizeBase} color={theme.colors.primary}/>
+        <IoMdMore
+          size={theme.fonts.iconSizeBase}
+          color={theme.colors.primary}
+        />
       </IconButton>
-      {
-        isShowMenu && (
-          <Column align="center" justify="flex-start" css={styles.dropdown}>
-            <ButtonLink
-              onClick={onEditMessage}
-            >
-              Edit
-            </ButtonLink>
-            <ButtonLink
-              onClick={onDeleteMessage}
-            >
-              Delete
-            </ButtonLink>
-          </Column>
-        )
-      }
+      {isShowMenu && (
+        <Column align="center" justify="flex-start" css={styles.dropdown}>
+          <ButtonLink onClick={onEditMessage}>Edit</ButtonLink>
+          <ButtonLink onClick={onDeleteMessage}>Delete</ButtonLink>
+        </Column>
+      )}
     </div>
-  )
-}
+  );
+};
 
 const Message = ({
   message: { id, content, author, authorId, status },
@@ -115,10 +108,13 @@ const Message = ({
         <Row>
           <UserAvatar username={author.username} />
           <MessageContent backgroundColor={theme.colors.primary}>
-            {status === MessageStatus.deleted ?
-              <Text light italic>Deleted</Text> :
+            {status === MessageStatus.deleted ? (
+              <Text light italic>
+                Deleted
+              </Text>
+            ) : (
               <Text light>{content}</Text>
-            }
+            )}
           </MessageContent>
         </Row>
       </MessageItem>
@@ -126,45 +122,46 @@ const Message = ({
   }
 
   return (
-      <MessageItem
-        align="flex-end"
-        key={id}
-        onDoubleClick={() => onStartEditMessage(id)}
-      >
-        <Text paddingVertical="1rem" paddingHorizontal="2.8rem">
-          {author.username}
-        </Text>
+    <MessageItem
+      align="flex-end"
+      key={id}
+      onDoubleClick={() => onStartEditMessage(id)}
+    >
+      <Text paddingVertical="1rem" paddingHorizontal="2.8rem">
+        {author.username}
+      </Text>
 
-        <Row css={styles.row}>
-          <MessageContent backgroundColor="white">
-            {isEditMode && selectedMessageId === id ?
-              (
-                <UpdateMessage
-                  message={{ id, content }}
-                  onClose={() => onFinishEditMessage()}
-                  height={contentRef.current && contentRef.current.offsetHeight}
-                />
+      <Row css={styles.row}>
+        <MessageContent backgroundColor="white">
+          {isEditMode && selectedMessageId === id ? (
+            <UpdateMessage
+              message={{ id, content }}
+              onClose={() => onFinishEditMessage()}
+              height={contentRef.current && contentRef.current.offsetHeight}
+            />
+          ) : (
+            <>
+              {status === MessageStatus.deleted ? (
+                <Text italic color={theme.colors.shadow}>
+                  Deleted
+                </Text>
               ) : (
-                <>
-                {status === MessageStatus.deleted ?
-                  <Text italic color={theme.colors.shadow}>Deleted</Text> :
-                  <Text ref={contentRef}>{content}</Text>
-                }
-                {status !== MessageStatus.deleted && (
-                  <ActionButtons
-                    onEditMessage={() => onStartEditMessage(id)}
-                    onDeleteMessage={() =>
-                      mutate({ id, status: MessageStatus.deleted })
-                    }
-                  />
-                )}
-                </>
-              )
-            }
-          </MessageContent>
-          <UserAvatar username={author.username} />
-        </Row>
-      </MessageItem>
+                <Text ref={contentRef}>{content}</Text>
+              )}
+              {status !== MessageStatus.deleted && (
+                <ActionButtons
+                  onEditMessage={() => onStartEditMessage(id)}
+                  onDeleteMessage={() =>
+                    mutate({ id, status: MessageStatus.deleted })
+                  }
+                />
+              )}
+            </>
+          )}
+        </MessageContent>
+        <UserAvatar username={author.username} />
+      </Row>
+    </MessageItem>
   );
 };
 
@@ -226,7 +223,7 @@ const Messages = ({ roomId }) => {
   }
 
   function scrollToBottom() {
-    messagesEndRef.current.scrollIntoView()
+    messagesEndRef.current.scrollIntoView();
   }
 
   if (loading) {
@@ -291,7 +288,7 @@ const styles = {
     width: 100%;
     padding-bottom: 0.8rem;
     margin-bottom: 0.4rem;
-    border-bottom: 1px solid ${theme.colors.primary}
+    border-bottom: 1px solid ${theme.colors.primary};
   `,
   container: css`
     height: calc(100vh - 200px);

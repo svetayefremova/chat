@@ -4,13 +4,7 @@ import { useState } from "react";
 import { IoMdClose } from "react-icons/io";
 
 import { IUpdateMessageInput, useUpdateMessageMutation } from "../hooks/hooks";
-import {
-  Text,
-  Column,
-  Textarea,
-  IconButton,
-  theme
-} from "../theme";
+import { Column, IconButton, Text, Textarea, theme } from "../theme";
 
 const UpdateMessage = ({ message, onClose, height }) => {
   const [content, setContent] = useState(message.content);
@@ -36,11 +30,15 @@ const UpdateMessage = ({ message, onClose, height }) => {
   }
 
   return (
-    <Column align="flex-start" justify="flex-end" css={css`flex: 1`}>
+    <Column
+      align="flex-start"
+      justify="flex-end"
+      css={css`
+        flex: 1;
+      `}
+    >
       <IconButton onClick={onClose}>
-        <IoMdClose
-          size={theme.fonts.iconSizeSmall}
-        />
+        <IoMdClose size={theme.fonts.iconSizeSmall} />
       </IconButton>
       {loading && <Text>Loading...</Text>}
       {error && <Text>Error :( Please try again</Text>}
