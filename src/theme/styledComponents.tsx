@@ -3,45 +3,54 @@ import { Link as link } from "react-router-dom";
 import styled, { Theme } from "./styled";
 
 interface Column {
-  align?: string;
-  justify?: string;
+  align?: string
+  justify?: string
 }
 
 interface Row {
-  align?: string;
-  justify?: string;
+  align?: string
+  justify?: string
 }
 
 interface Button {
-  primary?: boolean;
-  rounded?: boolean;
-  transparent?: boolean;
-  height?: string;
+  primary?: boolean
+  rounded?: boolean
+  transparent?: boolean
+  height?: string
 }
 
 interface Text {
-  light?: boolean;
-  opacity?: number;
-  paddingVertical?: string;
-  paddingHorizontal?: string;
-  margin?: number;
-  size?: string;
+  light?: boolean
+  opacity?: number
+  paddingVertical?: string
+  paddingHorizontal?: string
+  margin?: number
+  size?: string
+  italic?: boolean
 }
 
 interface ScrollContainer {
-  width?: string;
+  width?: string
 }
 
 interface MessageContent {
-  backgroundColor: string;
+  backgroundColor: string
 }
 
 interface MessageItem {
-  align: string;
+  align: string
 }
 
 interface Avatar {
-  margin?: string;
+  margin?: string
+}
+
+interface IconButton {
+  backgroundColor?: string
+}
+
+interface ButtonLink {
+  border?: string
 }
 
 export const Title = styled.h2`
@@ -77,7 +86,6 @@ export const Button = styled.button`
   background-color: ${({ theme }) => theme.colors.primaryShade3};
   border: none;
   color: white;
-  text-decoration: none;
   cursor: pointer;
   text-align: center;
   transition: background 250ms ease-in-out, transform 150ms ease;
@@ -88,6 +96,43 @@ export const Button = styled.button`
     background-color: ${({ theme }) => theme.colors.primaryShade2};
   }
 `;
+
+export const ButtonLink = styled.button`
+  border: ${(props: ButtonLink) => (props.border ? props.border : "none")};;
+  color: ${({ theme }) => theme.colors.primary};
+  cursor: pointer;
+  text-align: center;
+  transition: background 250ms ease-in-out, transform 150ms ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 100%;
+  font-size: ${({ theme }) => theme.fonts.fontSizeSmall};
+  padding: 0.4rem;
+  &:hover,
+  &:focus {
+    background-color: ${({ theme }) => theme.colors.primaryOpacity};
+  }
+`;
+
+export const IconButton = styled.button`
+  border: none;
+  background-color: ${(props: IconButton) => props.backgroundColor ? props.backgroundColor : "transparent"};
+  height: 2rem;
+  width: 2rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${({ theme }) => theme.colors.baseFontColor};
+  transition: background 250ms ease-in-out, transform 150ms ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  &:hover,
+  &:focus {
+    background-color: ${({ theme }) => theme.colors.primaryOpacity};
+  }
+`
+
 export const MainContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -101,7 +146,7 @@ export const MainContainer = styled.div`
 export const ScrollContainer = styled.div`
   max-height: calc(100vh - 72px);
   width: ${(props: ScrollContainer) => (props.width ? props.width : "auto")};
-  overflow: auto;
+  overflow-y: auto;
 `;
 
 export const Text = styled.p`
@@ -119,6 +164,8 @@ export const Text = styled.p`
   opacity: ${(props: Text) => (props.opacity ? props.opacity : 1)};
   font-size: ${(props: Text & { theme: Theme }) =>
     props.size ? props.size : props.theme.fonts.fontSizeBase};
+  font-style: ${(props: Text) =>
+    props.italic ? 'italic' : 'normal'};
 `;
 
 export const Center = styled.div`
@@ -133,7 +180,6 @@ export const MessageItem = styled.div`
   flex-direction: column;
   width: 100%;
   align-items: ${(props: MessageItem) => props.align};
-  margin: 1rem 0;
   padding-left: 1rem;
   padding-right: 1rem;
 `;
@@ -141,9 +187,10 @@ export const MessageItem = styled.div`
 export const MessageContent = styled.div`
   display: flex;
   justify-content: space-between;
-  width: 18rem;
+  max-width: 18rem;
+  min-width: 4rem;
   background-color: ${(props: MessageContent) => props.backgroundColor};
-  border-radius: 10px;
+  border-radius: 1.2rem;
   padding: 1rem;
   margin: 0 1rem;
   box-shadow: 0px 0px 10px ${({ theme }) => theme.colors.shadow};
@@ -161,3 +208,13 @@ export const Avatar = styled.div`
   align-items: center;
   justify-content: center;
 `;
+
+export const Textarea = styled.textarea`
+  min-height: 2rem;
+  padding: 0.8rem;
+  width: calc(18rem - 1.6rem);
+  border: none;
+  resize: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+`

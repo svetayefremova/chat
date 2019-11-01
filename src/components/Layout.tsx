@@ -16,7 +16,7 @@ const Layout = (props) => (
 const styles = {
   leftContainer: css`
     flex: 1;
-    max-width: 86px;
+    max-width: 4rem;
     display: flex;
   `,
   rightContainer: css`

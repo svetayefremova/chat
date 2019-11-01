@@ -1,22 +1,18 @@
-import React, { useState } from "react";
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+import { useState } from "react";
+import { IoMdClose } from "react-icons/io";
 
 import { IUpdateMessageInput, useUpdateMessageMutation } from "../hooks/hooks";
+import {
+  Text,
+  Column,
+  Textarea,
+  IconButton,
+  theme
+} from "../theme";
 
-const styles: any = {
-  updateInput: {
-    marginTop: 20,
-    display: "flex",
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  input: {
-    height: 20,
-    padding: 12,
-    width: "100%",
-  },
-};
-
-const UpdateMessage = ({ message, onClose }) => {
+const UpdateMessage = ({ message, onClose, height }) => {
   const [content, setContent] = useState(message.content);
   const [mutate, loading, error] = useUpdateMessageMutation();
 
@@ -40,19 +36,23 @@ const UpdateMessage = ({ message, onClose }) => {
   }
 
   return (
-    <div style={styles.updateInput}>
-      <input
+    <Column align="flex-start" justify="flex-end" css={css`flex: 1`}>
+      <IconButton onClick={onClose}>
+        <IoMdClose
+          size={theme.fonts.iconSizeSmall}
+        />
+      </IconButton>
+      {loading && <Text>Loading...</Text>}
+      {error && <Text>Error :( Please try again</Text>}
+      <Textarea
         name="message"
         placeholder="Type your message"
         onChange={(e) => setContent(e.target.value)}
         onKeyPress={(e) => update(e)}
         value={content}
-        style={styles.input}
+        rows={height / 16 || 4}
       />
-      <button onClick={onClose}>X</button>
-      {loading && <p>Loading...</p>}
-      {error && <p>Error :( Please try again</p>}
-    </div>
+    </Column>
   );
 };
 

@@ -27,7 +27,7 @@ const Header = () => {
         </Column>
       </Link>
       {userId && (
-        <Button onClick={mutate} height="5rem" primary>
+        <Button onClick={mutate} height="4rem" primary>
           <MdExitToApp
             color={theme.colors.iconLight}
             size={theme.fonts.iconSizeBase}
@@ -40,12 +40,11 @@ const Header = () => {
 
 const styles = {
   logoContainer: css`
-    padding-top: 16px;
-    padding-bottom: 16px;
+    padding: 0.6rem 0;
   `,
   linkContainer: css`
     background-color: ${theme.colors.primaryShade3};
-    padding: 16px;
+    padding: 0.6rem 0;
   `,
   header: css`
     flex: 1;

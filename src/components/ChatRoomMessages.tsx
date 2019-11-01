@@ -1,8 +1,8 @@
 /** @jsx jsx */
 import { css, jsx } from "@emotion/core";
 import { observer } from "mobx-react";
-import { useEffect, useState } from "react";
-import { IoMdClose, IoMdCreate } from "react-icons/io";
+import { useEffect, useState, useRef  } from "react";
+import { IoMdClose, IoMdCreate, IoMdMore } from "react-icons/io";
 
 import { ON_CREATE_MESSAGE, ON_UPDATE_MESSAGE } from "../graphql/subscriptions";
 import {
@@ -21,6 +21,8 @@ import {
   Row,
   ScrollContainer,
   Text,
+  IconButton,
+  ButtonLink,
   theme,
 } from "../theme";
 import CreateMessage from "./CreateMessage";
@@ -34,6 +36,46 @@ enum MessageStatus {
   deleted = "deleted",
 }
 
+const ActionButtons = ({ onEditMessage, onDeleteMessage }) => {
+  const [isShowMenu, setIsShowMenu] = useState(false);
+
+  function onMouseEnter() {
+    setIsShowMenu(true)
+  }
+
+  function onMouseLeave() {
+    setIsShowMenu(false)
+  }
+
+  return (
+    <div
+      css={styles.menuContainer}
+      onMouseOver={() => onMouseEnter()}
+      onMouseLeave={() => onMouseLeave()}
+    >
+      <IconButton>
+        <IoMdMore size={theme.fonts.iconSizeBase} color={theme.colors.primary}/>
+      </IconButton>
+      {
+        isShowMenu && (
+          <Column align="center" justify="flex-start" css={styles.dropdown}>
+            <ButtonLink
+              onClick={onEditMessage}
+            >
+              Edit
+            </ButtonLink>
+            <ButtonLink
+              onClick={onDeleteMessage}
+            >
+              Delete
+            </ButtonLink>
+          </Column>
+        )
+      }
+    </div>
+  )
+}
+
 const Message = ({
   message: { id, content, author, authorId, status },
   subscribeToMore,
@@ -42,6 +84,7 @@ const Message = ({
   const [selectedMessageId, setSelectedMessageId] = useState();
   const { userId } = useStore();
   const [mutate] = useUpdateMessageMutation();
+  const contentRef = useRef(null);
 
   useEffect(() => {
     const unsubscribe = subscribeToMore({
@@ -72,9 +115,10 @@ const Message = ({
         <Row>
           <UserAvatar username={author.username} />
           <MessageContent backgroundColor={theme.colors.primary}>
-            <Text light>
-              {status === MessageStatus.deleted ? "Deleted" : content}
-            </Text>
+            {status === MessageStatus.deleted ?
+              <Text light italic>Deleted</Text> :
+              <Text light>{content}</Text>
+            }
           </MessageContent>
         </Row>
       </MessageItem>
@@ -82,60 +126,45 @@ const Message = ({
   }
 
   return (
-    <>
-      {isEditMode && selectedMessageId === id ? (
-        <UpdateMessage
-          message={{ id, content }}
-          onClose={() => onFinishEditMessage()}
-        />
-      ) : (
-        <MessageItem
-          align="flex-end"
-          key={id}
-          onDoubleClick={() => onStartEditMessage(id)}
-        >
-          <Text paddingVertical="1rem" paddingHorizontal="2.8rem">
-            {author.username}
-          </Text>
-          <Row
-            css={css`
-              justify-content: flex-end;
-            `}
-          >
-            <MessageContent backgroundColor="white">
-              <Text>
-                {status === MessageStatus.deleted ? "Deleted" : content}
-              </Text>
-              {status !== MessageStatus.deleted && (
-                <Column align="center" justify="flex-start">
-                  <button
-                    onClick={() => onStartEditMessage(id)}
-                    css={styles.editButton}
-                  >
-                    <IoMdCreate
-                      color={theme.colors.baseFontColor}
-                      size={theme.fonts.iconSizeSmall}
-                    />
-                  </button>
-                  <button
-                    onClick={() =>
+      <MessageItem
+        align="flex-end"
+        key={id}
+        onDoubleClick={() => onStartEditMessage(id)}
+      >
+        <Text paddingVertical="1rem" paddingHorizontal="2.8rem">
+          {author.username}
+        </Text>
+
+        <Row css={styles.row}>
+          <MessageContent backgroundColor="white">
+            {isEditMode && selectedMessageId === id ?
+              (
+                <UpdateMessage
+                  message={{ id, content }}
+                  onClose={() => onFinishEditMessage()}
+                  height={contentRef.current && contentRef.current.offsetHeight}
+                />
+              ) : (
+                <>
+                {status === MessageStatus.deleted ?
+                  <Text italic color={theme.colors.shadow}>Deleted</Text> :
+                  <Text ref={contentRef}>{content}</Text>
+                }
+                {status !== MessageStatus.deleted && (
+                  <ActionButtons
+                    onEditMessage={() => onStartEditMessage(id)}
+                    onDeleteMessage={() =>
                       mutate({ id, status: MessageStatus.deleted })
                     }
-                    css={styles.editButton}
-                  >
-                    <IoMdClose
-                      color={theme.colors.baseFontColor}
-                      size={theme.fonts.iconSizeSmall}
-                    />
-                  </button>
-                </Column>
-              )}
-            </MessageContent>
-            <UserAvatar username={author.username} />
-          </Row>
-        </MessageItem>
-      )}
-    </>
+                  />
+                )}
+                </>
+              )
+            }
+          </MessageContent>
+          <UserAvatar username={author.username} />
+        </Row>
+      </MessageItem>
   );
 };
 
@@ -146,8 +175,11 @@ const Messages = ({ roomId }) => {
     roomId,
   );
   const { setIsFetching, handleScroll } = useInfiniteScroll(onLoadMore);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    messagesEndRef.current && scrollToBottom();
+
     subscribeToMore({
       document: ON_CREATE_MESSAGE,
       variables: { chatRoomId: roomId },
@@ -172,7 +204,7 @@ const Messages = ({ roomId }) => {
         }
       },
     });
-  }, [subscribeToMore, roomId]);
+  }, [scrollToBottom, subscribeToMore, roomId]);
 
   function onLoadMore() {
     fetchMore({
@@ -191,6 +223,10 @@ const Messages = ({ roomId }) => {
         });
       },
     });
+  }
+
+  function scrollToBottom() {
+    messagesEndRef.current.scrollIntoView()
   }
 
   if (loading) {
@@ -212,11 +248,14 @@ const Messages = ({ roomId }) => {
       css={styles.messagesContainer}
       onScroll={(e) => handleScroll(e)}
     >
-      {messages.map((message) => (
-        <div key={message.id} css={styles.messageContent}>
-          <Message message={message} subscribeToMore={subscribeToMore} />
-        </div>
-      ))}
+      <div css={styles.messagesContainerReverse}>
+        <div ref={messagesEndRef} />
+        {messages.map((message) => (
+          <div key={message.id} css={styles.messageContent}>
+            <Message message={message} subscribeToMore={subscribeToMore} />
+          </div>
+        ))}
+      </div>
     </ScrollContainer>
   );
 };
@@ -236,7 +275,9 @@ const ChatRoomMessages = observer(() => {
 
   return (
     <Center>
-      <Text>Chat: {currentChatId}</Text>
+      <Column css={styles.headerContainer}>
+        <Text>Chat: {currentChatId}</Text>
+      </Column>
       <div css={styles.container}>
         <Messages roomId={currentChatId} />
       </div>
@@ -246,15 +287,26 @@ const ChatRoomMessages = observer(() => {
 });
 
 const styles = {
-  container: css`
-    height: calc(100vh - 190px);
+  headerContainer: css`
     width: 100%;
+    padding-bottom: 0.8rem;
+    margin-bottom: 0.4rem;
+    border-bottom: 1px solid ${theme.colors.primary}
+  `,
+  container: css`
+    height: calc(100vh - 200px);
+    width: 100%;
+  `,
+  row: css`
+    justify-content: flex-end;
   `,
   emptyContainer: css`
     height: 100%;
   `,
   messagesContainer: css`
     height: 100%;
+  `,
+  messagesContainerReverse: css`
     display: flex;
     flex-direction: column-reverse;
   `,
@@ -267,29 +319,19 @@ const styles = {
     display: flex;
     align-self: stretch;
   `,
-  editButton: css`
-    margin-left: 0.6rem;
-    border: 0;
-    height: 1.5rem;
+  menuContainer: css`
+    position: relative;
+    align-self: flex-start;
   `,
-  updateInput: css`
-    margin-top: 1rem;
-    display: flex;
-    flex: 1;
-    justify-content: flex-end;
-  `,
-  typeInput: css`
-    margin-top: 1rem;
-    padding: 1rem;
-    background-color: ${theme.colors.primary};
-    display: flex;
-    flex: 1;
-    justify-content: center;
-  `,
-  input: css`
-    height: 1.1rem;
-    padding: 0.8rem;
-    width: 100%;
+  dropdown: css`
+    position: absolute;
+    right: 0;
+    top: 50;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    background-color: white;
+    transition: background 250ms ease-in-out, transform 150ms ease;
+    box-shadow: 0px 0px 10px ${theme.colors.shadow};
   `,
 };
 

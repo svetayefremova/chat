@@ -16,9 +16,12 @@ export interface Theme {
     primaryShade1: string;
     primaryShade2: string;
     primaryShade3: string;
+
+    primaryOpacity: string;
   };
   fonts: {
     fontSizeBase: string;
+    fontSizeSmall: string;
     iconSizeBase: string;
     iconSizeSmall: string;
   };
