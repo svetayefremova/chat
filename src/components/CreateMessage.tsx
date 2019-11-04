@@ -1,23 +1,15 @@
-import React, { useState } from "react";
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+import { useState } from "react";
+import { IoMdPaperPlane } from "react-icons/io";
 
 import { ICreateMessageInput, useCreateMessageMutation } from "../hooks/hooks";
 import { useStore } from "../stores/store";
-
-const styles: any = {
-  typeInput: {
-    marginTop: 20,
-    padding: 20,
-    backgroundColor: "#ffeeff",
-    display: "flex",
-    flex: 1,
-    justifyContent: "center",
-  },
-  input: {
-    height: 20,
-    padding: 12,
-    width: "100%",
-  },
-};
+import {
+  MessageInput,
+  Text,
+  theme,
+} from "../theme";
 
 const CreateMessage = ({ roomId }) => {
   const [message, setMessage] = useState("");
@@ -45,19 +37,36 @@ const CreateMessage = ({ roomId }) => {
   }
 
   return (
-    <div style={styles.typeInput}>
-      <input
+    <div css={styles.inputContainer}>
+      <MessageInput
         name="message"
         placeholder="Type your message"
         onChange={(e) => setMessage(e.target.value)}
         onKeyPress={(e) => create(e)}
         value={message}
-        style={styles.input}
       />
-      {loading && <p>Loading...</p>}
-      {error && <p>Error :( Please try again</p>}
+      <IoMdPaperPlane
+        color={theme.colors.primaryShade3}
+        fontSize={theme.fonts.iconSizeBase}
+        css={styles.icon}
+      />        
+      {loading && <Text>Loading...</Text>}
+      {error && <Text>Error :( Please try again</Text>}
     </div>
   );
 };
+
+const styles = {
+  inputContainer: css`
+    width: 100%;
+    padding: 1rem;
+    position: relative;
+  `,
+  icon: css`
+    position: absolute;
+    right: 1.6rem;
+    top: 1.6rem
+  `
+}
 
 export default CreateMessage;

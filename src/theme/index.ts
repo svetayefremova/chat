@@ -15,5 +15,6 @@ export {
   MessageContent,
   Avatar,
   Textarea,
+  MessageInput
 } from "./styledComponents";
 export { default as theme } from "./theme";

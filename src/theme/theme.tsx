@@ -1,6 +1,7 @@
 export default {
   colors: {
     baseColor: "#55585c",
+    baseColorOpacity: "rgba(80,88,92,0.24)",
 
     baseFontColor: "#55585c",
     darkFontColor: "#4f5760",

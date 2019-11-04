@@ -99,6 +99,7 @@ export const Button = styled.button`
 
 export const ButtonLink = styled.button`
   border: ${(props: ButtonLink) => (props.border ? props.border : "none")};
+  background: none;
   color: ${({ theme }) => theme.colors.primary};
   cursor: pointer;
   text-align: center;
@@ -217,4 +218,20 @@ export const Textarea = styled.textarea`
   resize: none;
   -webkit-appearance: none;
   -moz-appearance: none;
+`;
+
+export const MessageInput = styled.textarea`
+  padding: 0.4rem 2rem 0.4rem 0.8rem;
+  width: calc(100% - 2.8rem);
+  border: 1px solid ${({ theme }) => theme.colors.baseColorOpacity};
+  border-radius: 0.4rem;
+  resize: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  ::placeholder {
+    font-style: italic;
+  }
 `;

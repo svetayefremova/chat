@@ -3,6 +3,7 @@ import styled, { CreateStyled } from "@emotion/styled";
 export interface Theme {
   colors: {
     baseColor: string;
+    baseColorOpacity: string;
 
     darkFontColor: string;
     baseFontColor: string;

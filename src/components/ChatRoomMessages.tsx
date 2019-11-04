@@ -2,7 +2,7 @@
 import { css, jsx } from "@emotion/core";
 import { observer } from "mobx-react";
 import { useEffect, useRef, useState } from "react";
-import { IoMdClose, IoMdCreate, IoMdMore } from "react-icons/io";
+import { IoMdMore } from "react-icons/io";
 
 import { ON_CREATE_MESSAGE, ON_UPDATE_MESSAGE } from "../graphql/subscriptions";
 import {
@@ -291,7 +291,7 @@ const styles = {
     border-bottom: 1px solid ${theme.colors.primary};
   `,
   container: css`
-    height: calc(100vh - 200px);
+    height: calc(100vh - 180px);
     width: 100%;
   `,
   row: css`

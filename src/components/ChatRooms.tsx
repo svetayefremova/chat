@@ -158,11 +158,11 @@ const styles = {
     padding-right: 1rem;
     padding-bottom: 0.5rem;
     flex-direction: column;
+    -webkit-appearance: none;
+    -moz-appearance: none;
     &:hover {
       background-color: rgba(255, 255, 255, 0.12);
       transition: background 250ms ease-in-out, transform 150ms ease;
-      -webkit-appearance: none;
-      -moz-appearance: none;
     }
   `,
   itemContent: css`
