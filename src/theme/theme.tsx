@@ -1,5 +1,7 @@
 export default {
   colors: {
+    white: "#fff",
+    whiteRGB: "var(255, 255, 255)",
     baseColor: "#55585c",
     baseColorOpacity: "rgba(80,88,92,0.24)",
 
@@ -10,6 +12,7 @@ export default {
     default: "#cacedb",
     shadow: "rgba(63,148,209, 0.12)",
     iconLight: "#fff",
+    error: "#ED4337",
 
     primary: "#3f94d1",
     primaryShade1: "#3885bd",

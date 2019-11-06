@@ -6,20 +6,25 @@ import React from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import apolloClient from "./apollo/client";
+import Spinner from "./components/Spinner";
 import { useCurrentUserQuery } from "./hooks/hooks";
 import Chat from "./pages/Chat";
 import Login from "./pages/Login";
 import NoMatch from "./pages/NoMatch";
 import Signup from "./pages/Signup";
 import { StoreProvider, useStore } from "./stores/store";
-import { theme } from "./theme";
+import { Center, theme } from "./theme";
 
 const AppRoutes = () => {
   const { data, loading } = useCurrentUserQuery();
   const { userId, setUserId, setCurrentChatId } = useStore();
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <Center height="100vh">
+        <Spinner />
+      </Center>
+    );
   }
 
   const currentUser = data && data.currentUser;

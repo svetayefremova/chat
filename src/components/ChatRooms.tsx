@@ -118,7 +118,7 @@ const ChatRooms = () => {
   }
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <Text>Loading...</Text>;
   }
 
   const chatRooms = data && data.currentUser && data.currentUser.chatRooms;
@@ -162,7 +162,7 @@ const styles = {
     -moz-appearance: none;
     &:hover {
       background-color: rgba(255, 255, 255, 0.12);
-      transition: background 250ms ease-in-out, transform 150ms ease;
+      transition: background-color 250ms ease-in-out;
     }
   `,
   itemContent: css`
@@ -170,7 +170,7 @@ const styles = {
     padding: 0 0.5rem;
   `,
   selected: css`
-    border-left: 4px solid rgba(255, 255, 255, 1);
+    border-left: 4px solid ${theme.colors.white};
   `,
   newMessage: css`
     background-color: rgba(255, 255, 255, 0.24);

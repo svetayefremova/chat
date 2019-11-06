@@ -2,24 +2,24 @@ import { Link as link } from "react-router-dom";
 
 import styled, { Theme } from "./styled";
 
-interface Column {
+interface IColumn {
   align?: string;
   justify?: string;
 }
 
-interface Row {
+interface IRow {
   align?: string;
   justify?: string;
 }
 
-interface Button {
+interface IButton {
   primary?: boolean;
   rounded?: boolean;
   transparent?: boolean;
   height?: string;
 }
 
-interface Text {
+interface IText {
   light?: boolean;
   opacity?: number;
   paddingVertical?: string;
@@ -27,30 +27,35 @@ interface Text {
   margin?: number;
   size?: string;
   italic?: boolean;
+  danger?: boolean;
 }
 
-interface ScrollContainer {
+interface IScrollContainer {
   width?: string;
 }
 
-interface MessageContent {
+interface IMessageContent {
   backgroundColor: string;
 }
 
-interface MessageItem {
+interface IMessageItem {
   align: string;
 }
 
-interface Avatar {
+interface IAvatar {
   margin?: string;
 }
 
-interface IconButton {
+interface IIconButton {
   backgroundColor?: string;
 }
 
-interface ButtonLink {
+interface IButtonLink {
   border?: string;
+}
+
+interface ICenter {
+  height?: string;
 }
 
 export const Title = styled.h2`
@@ -70,40 +75,52 @@ export const Link = styled(link)`
 export const Row = styled.div`
   display: flex;
   flex-direction: row;
-  align-items: ${(props: Row) => props.align};
-  justify-content: ${(props: Row) => props.justify};
+  align-items: ${(props: IRow) => props.align};
+  justify-content: ${(props: IRow) => props.justify};
 `;
 
 export const Column = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: ${(props: Column) => props.align};
-  justify-content: ${(props: Column) => props.justify};
+  align-items: ${(props: IColumn) => props.align};
+  justify-content: ${(props: IColumn) => props.justify};
 `;
 
 export const Button = styled.button`
-  height: ${(props: Button) => (props.height ? props.height : "2rem")};
-  background-color: ${({ theme }) => theme.colors.primaryShade3};
+  height: ${(props: IButton) => (props.height ? props.height : "2rem")};
+  background-color: ${(props: IButton & { theme: Theme }) => {
+    if (props.primary) {
+      return props.theme.colors.primaryShade3;
+    }
+
+    if (props.transparent) {
+      return "transparent";
+    }
+
+    return props.theme.colors.primary;
+  }};
   border: none;
   color: white;
   cursor: pointer;
   text-align: center;
-  transition: background 250ms ease-in-out, transform 150ms ease;
+  width: 100%;
+  transition: background-color 250ms ease-in-out;
   -webkit-appearance: none;
   -moz-appearance: none;
   &:hover,
   &:focus {
+    outline: none;
     background-color: ${({ theme }) => theme.colors.primaryShade2};
   }
 `;
 
 export const ButtonLink = styled.button`
-  border: ${(props: ButtonLink) => (props.border ? props.border : "none")};
-  background: none;
+  border: ${(props: IButtonLink) => (props.border ? props.border : "none")};
+  background-color: none;
   color: ${({ theme }) => theme.colors.primary};
   cursor: pointer;
   text-align: center;
-  transition: background 250ms ease-in-out, transform 150ms ease;
+  transition: background-color 250ms ease-in-out;
   -webkit-appearance: none;
   -moz-appearance: none;
   width: 100%;
@@ -111,13 +128,14 @@ export const ButtonLink = styled.button`
   padding: 0.4rem;
   &:hover,
   &:focus {
+    outline: none;
     background-color: ${({ theme }) => theme.colors.primaryOpacity};
   }
 `;
 
 export const IconButton = styled.button`
   border: none;
-  background-color: ${(props: IconButton) =>
+  background-color: ${(props: IIconButton) =>
     props.backgroundColor ? props.backgroundColor : "transparent"};
   height: 2rem;
   width: 2rem;
@@ -126,11 +144,12 @@ export const IconButton = styled.button`
   align-items: center;
   justify-content: center;
   color: ${({ theme }) => theme.colors.baseFontColor};
-  transition: background 250ms ease-in-out, transform 150ms ease;
+  transition: background-color 250ms ease-in-out;
   -webkit-appearance: none;
   -moz-appearance: none;
   &:hover,
   &:focus {
+    outline: none;
     background-color: ${({ theme }) => theme.colors.primaryOpacity};
   }
 `;
@@ -147,26 +166,35 @@ export const MainContainer = styled.div`
 
 export const ScrollContainer = styled.div`
   max-height: calc(100vh - 72px);
-  width: ${(props: ScrollContainer) => (props.width ? props.width : "auto")};
+  width: ${(props: IScrollContainer) => (props.width ? props.width : "auto")};
   overflow-y: auto;
 `;
 
 export const Text = styled.p`
-  margin: ${(props: Text) => (props.margin ? props.margin : 0)};
-  padding-top: ${(props: Text) =>
+  margin: ${(props: IText) => (props.margin ? props.margin : 0)};
+  padding-top: ${(props: IText) =>
     props.paddingVertical ? props.paddingVertical : 0};
-  padding-bottom: ${(props: Text) =>
+  padding-bottom: ${(props: IText) =>
     props.paddingVertical ? props.paddingVertical : 0};
-  padding-left: ${(props: Text) =>
+  padding-left: ${(props: IText) =>
     props.paddingHorizontal ? props.paddingHorizontal : 0};
-  padding-right: ${(props: Text) =>
+  padding-right: ${(props: IText) =>
     props.paddingHorizontal ? props.paddingHorizontal : 0};
-  color: ${(props: Text & { theme: Theme }) =>
-    props.light ? "white" : props.theme.colors.baseColor};
-  opacity: ${(props: Text) => (props.opacity ? props.opacity : 1)};
-  font-size: ${(props: Text & { theme: Theme }) =>
+  color: ${(props: IText & { theme: Theme }) => {
+    if (props.danger) {
+      return props.theme.colors.error;
+    }
+
+    if (props.light) {
+      return props.theme.colors.white;
+    }
+
+    return props.theme.colors.baseColor;
+  }};
+  opacity: ${(props: IText) => (props.opacity ? props.opacity : 1)};
+  font-size: ${(props: IText & { theme: Theme }) =>
     props.size ? props.size : props.theme.fonts.fontSizeBase};
-  font-style: ${(props: Text) => (props.italic ? "italic" : "normal")};
+  font-style: ${(props: IText) => (props.italic ? "italic" : "normal")};
 `;
 
 export const Center = styled.div`
@@ -174,13 +202,14 @@ export const Center = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  height: ${(props: ICenter) => (props.height ? props.height : "100%")};
 `;
 
 export const MessageItem = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  align-items: ${(props: MessageItem) => props.align};
+  align-items: ${(props: IMessageItem) => props.align};
   padding-left: 1rem;
   padding-right: 1rem;
 `;
@@ -190,7 +219,7 @@ export const MessageContent = styled.div`
   justify-content: space-between;
   max-width: 18rem;
   min-width: 4rem;
-  background-color: ${(props: MessageContent) => props.backgroundColor};
+  background-color: ${(props: IMessageContent) => props.backgroundColor};
   border-radius: 1.2rem;
   padding: 1rem;
   margin: 0 1rem;
@@ -204,7 +233,7 @@ export const Avatar = styled.div`
   border-radius: 1.2rem;
   background-color: white;
   box-shadow: 0px 0px 10px ${({ theme }) => theme.colors.shadow};
-  margin: ${(props: Avatar) => (props.margin ? props.margin : 0)};
+  margin: ${(props: IAvatar) => (props.margin ? props.margin : 0)};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -218,6 +247,9 @@ export const Textarea = styled.textarea`
   resize: none;
   -webkit-appearance: none;
   -moz-appearance: none;
+  &:focus {
+    outline: none;
+  }
 `;
 
 export const MessageInput = styled.textarea`
@@ -233,5 +265,34 @@ export const MessageInput = styled.textarea`
   -moz-appearance: none;
   ::placeholder {
     font-style: italic;
+  }
+  &:focus {
+    outline: none;
+  }
+`;
+
+export const ListItem = styled.li`
+  padding: 0.4rem 0.8rem;
+  width: calc(100% - 1.6rem);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  transition: background-color 250ms ease-in-out;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  &:not(:last-child) {
+    border-bottom: 1px solid ${({ theme }) => theme.colors.baseColorOpacity};
+  }
+  > svg {
+    opacity: 0;
+    transition: opacity 250ms ease-in-out;
+  }
+  &:hover,
+  &:focus {
+    background-color: ${({ theme }) => theme.colors.primaryOpacity};
+    > svg {
+      opacity: 1;
+    }
   }
 `;

@@ -5,11 +5,7 @@ import { IoMdPaperPlane } from "react-icons/io";
 
 import { ICreateMessageInput, useCreateMessageMutation } from "../hooks/hooks";
 import { useStore } from "../stores/store";
-import {
-  MessageInput,
-  Text,
-  theme,
-} from "../theme";
+import { MessageInput, Text, theme } from "../theme";
 
 const CreateMessage = ({ roomId }) => {
   const [message, setMessage] = useState("");
@@ -49,9 +45,17 @@ const CreateMessage = ({ roomId }) => {
         color={theme.colors.primaryShade3}
         fontSize={theme.fonts.iconSizeBase}
         css={styles.icon}
-      />        
-      {loading && <Text>Loading...</Text>}
-      {error && <Text>Error :( Please try again</Text>}
+      />
+      {loading && (
+        <Text size="0.8rem" paddingVertical="0.4rem">
+          Loading...
+        </Text>
+      )}
+      {error && (
+        <Text danger size="0.8rem" paddingVertical="0.4rem">
+          Error :( Please try again later
+        </Text>
+      )}
     </div>
   );
 };
@@ -65,8 +69,8 @@ const styles = {
   icon: css`
     position: absolute;
     right: 1.6rem;
-    top: 1.6rem
-  `
-}
+    top: 1.6rem;
+  `,
+};
 
 export default CreateMessage;

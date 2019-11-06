@@ -26,6 +26,7 @@ import {
   theme,
 } from "../theme";
 import CreateMessage from "./CreateMessage";
+import Spinner from "./Spinner";
 import UpdateMessage from "./UpdateMessage";
 import UserAvatar from "./UserAvatar";
 
@@ -227,7 +228,11 @@ const Messages = ({ roomId }) => {
   }
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return (
+      <Center>
+        <Spinner />
+      </Center>
+    );
   }
 
   const messages = data && data.getMessages;
@@ -235,7 +240,10 @@ const Messages = ({ roomId }) => {
   if (!messages || !messages.length) {
     return (
       <Center>
-        <Text>There are no messages yet</Text>
+        <Text>No Messages</Text>
+        <Text size="0.8rem" paddingVertical="1rem">
+          When you have messages, you will see them here
+        </Text>
       </Center>
     );
   }
@@ -260,12 +268,14 @@ const Messages = ({ roomId }) => {
 const ChatRoomMessages = observer(() => {
   const { currentChatId } = useStore();
 
-  // TODO should be another logic
-  // maybe open first chat by default with bot user?
   if (!currentChatId) {
     return (
-      <Center css={styles.emptyContainer}>
-        <Text>Start to chat with somebody</Text>
+      <Center>
+        <Text size="2rem">Welcome to the Chattic!</Text>
+        <Text paddingVertical="1rem">
+          Nice to see you here! Make your first steps and start chatting with
+          visitors
+        </Text>
       </Center>
     );
   }
@@ -296,9 +306,6 @@ const styles = {
   `,
   row: css`
     justify-content: flex-end;
-  `,
-  emptyContainer: css`
-    height: 100%;
   `,
   messagesContainer: css`
     height: 100%;

@@ -1,22 +1,14 @@
-import React, { useEffect, useState } from "react";
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
+import { useEffect, useState } from "react";
+import { IoIosAdd } from "react-icons/io";
 
 import { useCreateChatRoomMutation, useListUsersQuery } from "../hooks/hooks";
 import { useStore } from "../stores/store";
-
-const styles: any = {
-  modal: {
-    position: "absolute",
-    zIndex: 1,
-    left: "20%",
-    bottom: "20%",
-    top: "20%",
-    right: "20%",
-    backgroundColor: "white",
-    boxShadow: "0px 1px 3px rgba(0, 0, 0, .2)",
-    padding: 20,
-    overflowY: "auto",
-  },
-};
+import { Button, Center, ListItem, Row, Text, theme } from "../theme";
+import Modal from "./Modal";
+import Spinner from "./Spinner";
+import UserAvatar from "./UserAvatar";
 
 // TODO split code into components
 const ListUsers = ({ onCreateChat, isFetching, stopFetching }) => {
@@ -48,12 +40,20 @@ const ListUsers = ({ onCreateChat, isFetching, stopFetching }) => {
   }
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <Center>
+        <Spinner />
+      </Center>
+    );
   }
 
   const users = data && data.listUsers;
   if (!users) {
-    return <p>No users</p>;
+    return (
+      <Center>
+        <Text>No Users</Text>
+      </Center>
+    );
   }
 
   return (
@@ -64,23 +64,19 @@ const ListUsers = ({ onCreateChat, isFetching, stopFetching }) => {
         }
 
         return (
-          <li key={id}>
-            <button onClick={() => onCreateChat(id)}>
-              <p>{username}</p>
-            </button>
-          </li>
+          <ListItem key={id} onClick={() => onCreateChat(id)}>
+            <Row align="center">
+              <UserAvatar username={username} margin="0 0.5rem 0 0" />
+              <Text>{username}</Text>
+            </Row>
+            <IoIosAdd
+              color={theme.colors.primary}
+              size={theme.fonts.iconSizeBase}
+            />
+          </ListItem>
         );
       })}
     </ul>
-  );
-};
-
-const Modal = ({ onClose, onScroll, ...props }) => {
-  return (
-    <div style={styles.modal} onScroll={onScroll}>
-      <button onClick={onClose}>Close</button>
-      {props.children}
-    </div>
   );
 };
 
@@ -122,15 +118,17 @@ const CreateChat = () => {
   }
 
   return (
-    <div>
-      <button onClick={() => setIsShowModal(true)}>Create chat</button>
+    <>
+      <Button onClick={() => setIsShowModal(true)} transparent>
+        Create new chat
+      </Button>
       {isShowModal ? (
         <ListUsersModal
           onClose={() => setIsShowModal(false)}
           onCreateChat={onCreateChat}
         />
       ) : null}
-    </div>
+    </>
   );
 };
 
