@@ -17,5 +17,7 @@ export {
   Textarea,
   MessageInput,
   ListItem,
+  FormInput,
+  Label,
 } from "./styledComponents";
 export { default as theme } from "./theme";

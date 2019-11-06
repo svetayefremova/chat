@@ -65,7 +65,7 @@ export const useGetMessagesQuery = (roomId, filter = null) =>
 
 // MUTATIONS
 export const useSignUpMutation = () => {
-  const [signup] = useMutation(SIGNUP, {
+  const [signup, { loading, error }] = useMutation(SIGNUP, {
     update(cache, { data: { signup } }) {
       cache.writeQuery({
         query: CURRENT_USER,
@@ -74,10 +74,16 @@ export const useSignUpMutation = () => {
     },
   });
 
-  return (username: string, password: string) =>
-    signup({
-      variables: { input: { username, password } },
-    });
+  const mutation: any = [
+    (username: string, password: string) =>
+      signup({
+        variables: { input: { username, password } },
+      }),
+    loading,
+    error,
+  ];
+
+  return mutation;
 };
 
 export const useLogoutMutation = () => {
@@ -94,7 +100,7 @@ export const useLogoutMutation = () => {
 };
 
 export const useLoginMutation = () => {
-  const [login] = useMutation(LOGIN, {
+  const [login, { loading, error }] = useMutation(LOGIN, {
     update(cache, { data: { login } }) {
       cache.writeQuery({
         query: CURRENT_USER,
@@ -103,10 +109,16 @@ export const useLoginMutation = () => {
     },
   });
 
-  return (username: string, password: string) =>
-    login({
-      variables: { input: { username, password } },
-    });
+  const mutation: any = [
+    (username: string, password: string) =>
+      login({
+        variables: { input: { username, password } },
+      }),
+    loading,
+    error,
+  ];
+
+  return mutation;
 };
 
 export const useCreateChatRoomMutation = () => {

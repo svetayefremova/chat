@@ -28,6 +28,7 @@ interface IText {
   size?: string;
   italic?: boolean;
   danger?: boolean;
+  color?: string;
 }
 
 interface IScrollContainer {
@@ -86,9 +87,18 @@ export const Column = styled.div`
   justify-content: ${(props: IColumn) => props.justify};
 `;
 
+export const Center = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: ${(props: ICenter) => (props.height ? props.height : "100%")};
+  width: 100%;
+`;
+
 export const Button = styled.button`
   height: ${(props: IButton) => (props.height ? props.height : "2rem")};
-  background-color: ${(props: IButton & { theme: Theme }) => {
+  background: ${(props: IButton & { theme: Theme }) => {
     if (props.primary) {
       return props.theme.colors.primaryShade3;
     }
@@ -104,23 +114,31 @@ export const Button = styled.button`
   cursor: pointer;
   text-align: center;
   width: 100%;
-  transition: background-color 250ms ease-in-out;
+  transition: background 250ms ease-in-out;
   -webkit-appearance: none;
   -moz-appearance: none;
   &:hover,
   &:focus {
     outline: none;
-    background-color: ${({ theme }) => theme.colors.primaryShade2};
+    background: ${({ theme }) => theme.colors.primaryShade2};
+  }
+  &:disabled {
+    background: ${({ theme }) => theme.colors.baseColorOpacity};
+    &:hover,
+    &:focus {
+      outline: none;
+      background: ${({ theme }) => theme.colors.baseColorOpacity};
+    }
   }
 `;
 
 export const ButtonLink = styled.button`
   border: ${(props: IButtonLink) => (props.border ? props.border : "none")};
-  background-color: none;
+  background: none;
   color: ${({ theme }) => theme.colors.primary};
   cursor: pointer;
   text-align: center;
-  transition: background-color 250ms ease-in-out;
+  transition: background 250ms ease-in-out;
   -webkit-appearance: none;
   -moz-appearance: none;
   width: 100%;
@@ -129,13 +147,21 @@ export const ButtonLink = styled.button`
   &:hover,
   &:focus {
     outline: none;
-    background-color: ${({ theme }) => theme.colors.primaryOpacity};
+    background: ${({ theme }) => theme.colors.primaryOpacity};
+  }
+  &:disabled {
+    color: ${({ theme }) => theme.colors.baseColorOpacity};
+    &:hover,
+    &:focus {
+      outline: none;
+      background: none;
+    }
   }
 `;
 
 export const IconButton = styled.button`
   border: none;
-  background-color: ${(props: IIconButton) =>
+  background: ${(props: IIconButton) =>
     props.backgroundColor ? props.backgroundColor : "transparent"};
   height: 2rem;
   width: 2rem;
@@ -144,13 +170,13 @@ export const IconButton = styled.button`
   align-items: center;
   justify-content: center;
   color: ${({ theme }) => theme.colors.baseFontColor};
-  transition: background-color 250ms ease-in-out;
+  transition: background 250ms ease-in-out;
   -webkit-appearance: none;
   -moz-appearance: none;
   &:hover,
   &:focus {
     outline: none;
-    background-color: ${({ theme }) => theme.colors.primaryOpacity};
+    background: ${({ theme }) => theme.colors.primaryOpacity};
   }
 `;
 
@@ -189,20 +215,16 @@ export const Text = styled.p`
       return props.theme.colors.white;
     }
 
+    if (props.color) {
+      return props.color;
+    }
+
     return props.theme.colors.baseColor;
   }};
   opacity: ${(props: IText) => (props.opacity ? props.opacity : 1)};
   font-size: ${(props: IText & { theme: Theme }) =>
     props.size ? props.size : props.theme.fonts.fontSizeBase};
   font-style: ${(props: IText) => (props.italic ? "italic" : "normal")};
-`;
-
-export const Center = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: ${(props: ICenter) => (props.height ? props.height : "100%")};
 `;
 
 export const MessageItem = styled.div`
@@ -231,7 +253,7 @@ export const Avatar = styled.div`
   min-width: 2.4rem;
   height: 2.4rem;
   border-radius: 1.2rem;
-  background-color: white;
+  background-color: ${({ theme }) => theme.colors.white};
   box-shadow: 0px 0px 10px ${({ theme }) => theme.colors.shadow};
   margin: ${(props: IAvatar) => (props.margin ? props.margin : 0)};
   display: flex;
@@ -276,7 +298,7 @@ export const ListItem = styled.li`
   width: calc(100% - 1.6rem);
   -webkit-appearance: none;
   -moz-appearance: none;
-  transition: background-color 250ms ease-in-out;
+  transition: background 250ms ease-in-out;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -290,9 +312,30 @@ export const ListItem = styled.li`
   }
   &:hover,
   &:focus {
-    background-color: ${({ theme }) => theme.colors.primaryOpacity};
+    background: ${({ theme }) => theme.colors.primaryOpacity};
     > svg {
       opacity: 1;
     }
   }
+`;
+
+export const FormInput = styled.input`
+  padding: 0.4rem 0.8rem;
+  width: calc(100% - 1.6rem - 2px);
+  margin: 0.2rem 0 0.5rem;
+  border: 1px solid ${({ theme }) => theme.colors.baseColorOpacity};
+  border-radius: 0.2rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  ::placeholder {
+    font-style: italic;
+  }
+  &:focus {
+    outline: none;
+  }
+`;
+
+export const Label = styled.label`
+  color: ${({ theme }) => theme.colors.baseColor};
+  font-size: ${({ theme }) => theme.fonts.fontSizeSmall};
 `;

@@ -1,15 +1,12 @@
+/** @jsx jsx */
+import { css, jsx } from "@emotion/core";
 import useForm from "rc-form-hooks";
-import React, { useState } from "react";
+import { useState } from "react";
 
-const style: any = {
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-  },
-};
+import { Button, Center, FormInput, Label, Text, theme } from "../theme";
+import Spinner from "./Spinner";
 
-const AuthForm = ({ onSubmit, buttonText }) => {
+const AuthForm = ({ onSubmit, buttonText, error, loading }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const { getFieldDecorator, validateFields } = useForm<{
@@ -20,31 +17,59 @@ const AuthForm = ({ onSubmit, buttonText }) => {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     await validateFields();
+    await onSubmit(username, password);
     setUsername("");
     setPassword("");
-    onSubmit(username, password);
   }
 
   return (
-    <form onSubmit={handleSubmit} style={style.form}>
-      <label>
+    <form onSubmit={handleSubmit} css={styles.form}>
+      <Label>
         Username
         {getFieldDecorator("username")(
-          <input type="text" onChange={(e) => setUsername(e.target.value)} />,
+          <FormInput
+            type="text"
+            onChange={(e) => setUsername(e.target.value)}
+          />,
         )}
-      </label>
-      <label>
+      </Label>
+      <Label>
         Password
         {getFieldDecorator("password")(
-          <input
+          <FormInput
             type="password"
             onChange={(e) => setPassword(e.target.value)}
           />,
         )}
-      </label>
-      <button type={"submit"}>{buttonText}</button>
+      </Label>
+      {error && (
+        <Text danger size="0.8rem">
+          {error.message}
+        </Text>
+      )}
+      {loading && (
+        <Center height="auto">
+          <Spinner />
+        </Center>
+      )}
+      <Button type={"submit"} css={styles.submitButton} disabled={loading}>
+        {buttonText}
+      </Button>
     </form>
   );
+};
+
+const styles = {
+  form: css`
+    width: 20rem;
+    background: ${theme.colors.white};
+    padding: 2rem;
+    margin-bottom: 0.8rem;
+  `,
+  submitButton: css`
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  `,
 };
 
 export default AuthForm;

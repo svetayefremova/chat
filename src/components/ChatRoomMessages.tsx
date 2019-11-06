@@ -334,7 +334,7 @@ const styles = {
     overflow: hidden;
     border-radius: 0.5rem;
     background-color: white;
-    transition: background 250ms ease-in-out, transform 150ms ease;
+    transition: background 250ms ease-in-out;
     box-shadow: 0px 0px 10px ${theme.colors.shadow};
   `,
 };

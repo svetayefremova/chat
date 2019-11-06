@@ -8,7 +8,6 @@ const createStore = () => ({
   currentChatId: null,
 
   setUserId(id: string) {
-    console.log("setUserId", id);
     this.userId = id;
   },
 

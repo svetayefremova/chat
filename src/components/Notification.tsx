@@ -10,7 +10,6 @@ const Notification = () => {
   const { data } = useNewNotificationSubscription(userId);
 
   useEffect(() => {
-    console.log("newNotification", data);
     if (data) {
       const { payload } = data.newNotification;
       const { content, authorId } = JSON.parse(payload);
