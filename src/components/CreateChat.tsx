@@ -118,7 +118,7 @@ const CreateChat = () => {
   return (
     <>
       <Button onClick={() => setIsShowModal(true)} transparent>
-        Create new chat
+        + New Chat
       </Button>
       {isShowModal ? (
         <ListUsersModal

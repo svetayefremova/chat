@@ -14,7 +14,7 @@ const Notification = () => {
       const { payload } = data.newNotification;
       const { content, authorId } = JSON.parse(payload);
       if (authorId !== userId) {
-        toast(content);
+        toast.info(content);
       }
     }
   }, [data, userId]);

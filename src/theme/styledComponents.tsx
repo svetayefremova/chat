@@ -1,63 +1,20 @@
 import { Link as link } from "react-router-dom";
 
 import styled, { Theme } from "./styled";
-
-interface IColumn {
-  align?: string;
-  justify?: string;
-}
-
-interface IRow {
-  align?: string;
-  justify?: string;
-}
-
-interface IButton {
-  primary?: boolean;
-  rounded?: boolean;
-  transparent?: boolean;
-  height?: string;
-}
-
-interface IText {
-  light?: boolean;
-  opacity?: number;
-  paddingVertical?: string;
-  paddingHorizontal?: string;
-  margin?: number;
-  size?: string;
-  italic?: boolean;
-  danger?: boolean;
-  color?: string;
-}
-
-interface IScrollContainer {
-  width?: string;
-}
-
-interface IMessageContent {
-  backgroundColor: string;
-}
-
-interface IMessageItem {
-  align: string;
-}
-
-interface IAvatar {
-  margin?: string;
-}
-
-interface IIconButton {
-  backgroundColor?: string;
-}
-
-interface IButtonLink {
-  border?: string;
-}
-
-interface ICenter {
-  height?: string;
-}
+import {
+  Animation,
+  IAvatar,
+  IButton,
+  IButtonLink,
+  ICenter,
+  IColumn,
+  IIconButton,
+  IMessageContent,
+  IMessageItem,
+  IRow,
+  IScrollContainer,
+  IText,
+} from "./types";
 
 export const Title = styled.h2`
   color: ${({ theme }) => theme.colors.lightFontColor};
@@ -225,6 +182,7 @@ export const Text = styled.p`
   font-size: ${(props: IText & { theme: Theme }) =>
     props.size ? props.size : props.theme.fonts.fontSizeBase};
   font-style: ${(props: IText) => (props.italic ? "italic" : "normal")};
+  text-align: ${(props: IText) => props.textAlign};
 `;
 
 export const MessageItem = styled.div`
@@ -237,6 +195,7 @@ export const MessageItem = styled.div`
 `;
 
 export const MessageContent = styled.div`
+  position: relative;
   display: flex;
   justify-content: space-between;
   max-width: 18rem;
@@ -246,6 +205,32 @@ export const MessageContent = styled.div`
   padding: 1rem;
   margin: 0 1rem;
   box-shadow: 0px 0px 10px ${({ theme }) => theme.colors.shadow};
+  animation-name: ${(props: IMessageContent) => props.animation};
+  animation-duration: 0.4s;
+  animation-direction: normal;
+  animation-timing-function: ease-in-out;
+
+  @keyframes floatLeft {
+    0% {
+      left: -0.5rem;
+      opacity: 0;
+    }
+    100% {
+      left: 0;
+      opacity: 1;
+    }
+  }
+
+  @keyframes floatRight {
+    0% {
+      right: -0.5rem;
+      opacity: 0;
+    }
+    100% {
+      right: 0;
+      opacity: 1;
+    }
+  }
 `;
 
 export const Avatar = styled.div`
