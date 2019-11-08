@@ -67,6 +67,14 @@ export const GET_CHATROOM = gql`
     getChatRoom(id: $id) {
       id
       name
+      members
+      messages {
+        id
+        content
+      }
+      isGroupChat
+      createdAt
+      updatedAt
     }
   }
 `;

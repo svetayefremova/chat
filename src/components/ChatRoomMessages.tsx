@@ -2,13 +2,27 @@
 import { css, jsx } from "@emotion/core";
 import { observer } from "mobx-react";
 
+import { useGetChatRoomQuery, useGetUserQuery } from "../hooks/hooks";
 import { useStore } from "../stores/store";
 import { Center, Column, Text, theme } from "../theme";
 import CreateMessage from "./CreateMessage";
 import Messages from "./Messages";
 
+const ChatRoomTitle = ({ chatWith }) => {
+  const { data } = useGetUserQuery(chatWith);
+
+  const chatUser = data && data.getUser;
+
+  return (
+    <Text color={theme.colors.primary}>
+      <strong>Chat with {chatUser && chatUser.username}</strong>
+    </Text>
+  );
+};
+
 const ChatRoomMessages = observer(() => {
-  const { currentChatId } = useStore();
+  const { currentChatId, userId } = useStore();
+  const { data } = useGetChatRoomQuery(currentChatId);
 
   if (!currentChatId) {
     return (
@@ -24,10 +38,14 @@ const ChatRoomMessages = observer(() => {
     );
   }
 
+  const chatRoom = data && data.getChatRoom;
+  const chatWith =
+    chatRoom && chatRoom.members.find((member) => member !== userId);
+
   return (
     <Center>
       <Column css={styles.headerContainer}>
-        <Text>Chat: {currentChatId}</Text>
+        <ChatRoomTitle chatWith={chatWith} />
       </Column>
       <div css={styles.messagesContainer}>
         <Messages roomId={currentChatId} />

@@ -129,7 +129,7 @@ export const useCreateChatRoomMutation = () => {
   });
 
   return (users: string[]) => {
-    // TODO divide login for group chat
+    // TODO flow for group chat
     const members = users.sort();
     return createChatRoom({
       variables: {
